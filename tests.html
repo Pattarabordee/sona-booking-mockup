@@ -152,13 +152,13 @@ test('ราคา = บริการหลัก + Add-on ตามป้า�
   eq(E("priceOf('s1',['treat'])"), 200, 'สระไดร์+ทรีตเมนต์');
   eq(E("priceOf('s1',['straight','curl','treat','massage'])"), 370, 'ทุก add-on');
   eq(E("priceOf('s2',['curl'])"), 400, 'Cool Scalp Spa+เซ็ตลอน');
-  eq(E("priceOf('s1',['treat'],true)"), 50, 'ใช้แพ็กเกจ เหลือจ่ายแค่ add-on');
+  eq(E("priceOf('s1',['treat'],true)"), 50, 'ใช้รางวัลสะสมแต้ม เหลือจ่ายแค่ add-on');
 });
-test('Cool Scalp Spa เลือกได้แค่หนีบตรง/เซ็ตลอน และใช้แพ็กเกจไม่ได้', ({ E, click, q }) => {
+test('Cool Scalp Spa เลือกได้แค่หนีบตรง/เซ็ตลอน และใช้รางวัลสระไดร์ฟรีไม่ได้', ({ E, click, q }) => {
   E("S.c.screen='book'; renderAll()");
   click('[data-act="c-svc"][data-k="s2"]');
   eq([...q('#custApp').querySelectorAll('[data-act="c-add"]')].map(e => e.dataset.k), ['straight', 'curl'], 'add-on ของ s2');
-  ok(q('[data-set="usePkg"]').disabled, 'ช่องใช้แพ็กเกจต้องกดไม่ได้');
+  ok(q('[data-set="usePkg"]').disabled, 'ช่องใช้รางวัลต้องกดไม่ได้');
 });
 test('ราคาและเวลาในคิวถูกล็อกตอนจอง (เปลี่ยนราคาทีหลังไม่กระทบย้อนหลัง)', ({ E, book }) => {
   const b = book({ time: 1020, addons: ['treat'] });
@@ -199,20 +199,19 @@ test('ปิดรับจองชั่วคราว → ลูกค้า
   ok(q('[data-act="c-book"]').disabled, 'ปุ่มจองต้องกดไม่ได้');
   ok(!q('#custApp').querySelector('.slot'), 'ต้องไม่แสดงช่องเวลา');
 });
-test('ใช้แพ็กเกจ: ตัดสิทธิ์ 1 ครั้ง, ราคาเหลือเฉพาะ add-on', ({ E, book }) => {
-  const b = book({ time: 1020, pkg: true });
-  eq([b.price, b.pkg, E('S.c.pkgLeft')], [0, true, 6], 'ราคา/แพ็กเกจ/สิทธิ์ที่เหลือ');
+test('ใช้รางวัลบัตรสะสมแต้ม: ไม่คิดค่าสระไดร์ เก็บเฉพาะ add-on', ({ book }) => {
+  eq(book({ time: 1020, pkg: true }).price, 0, 'สระไดร์ฟรี');
+  eq(book({ time: 1080, pkg: true, addons: ['treat'] }).price, 50, 'สระไดร์ฟรี + ทรีตเมนต์');
 });
-test('ยกเลิกเองได้เฉพาะก่อนนัด ≥ 2 ชม. และคืนสิทธิ์แพ็กเกจ', ({ E, book, click, q }) => {
+test('ยกเลิกเองได้เฉพาะก่อนนัด ≥ 2 ชม. และคืนที่ว่างในตาราง', ({ E, book, click, q }) => {
   const near = book({ time: 900 });            // 15:00 = อีก 100 นาที
   const far = book({ time: 1020, pkg: true });  // 17:00 = อีก 220 นาที
   ok(near && far, 'ต้องจองได้ทั้ง 2 คิว');
   E("S.c.screen='myq'; renderAll()");
   ok(q(`[data-act="c-cancel"][data-id="${near.id}"]`).disabled, 'คิว 15:00 ต้องยกเลิกไม่ได้');
-  const left = E('S.c.pkgLeft');
   click(`[data-act="c-cancel"][data-id="${far.id}"]`);
   eq(E(`find('${far.id}').status`), 'cancelled', 'คิว 17:00 ต้องยกเลิกได้');
-  eq(E('S.c.pkgLeft'), left + 1, 'ต้องคืนสิทธิ์แพ็กเกจ');
+  eq(E("load('s62',0,1020)"), 0, '17:00 ต้องว่างอีกครั้ง');
   eq(E("S.log[S.log.length-1].act"), 'ยกเลิกคิว', 'log');
 });
 
@@ -248,9 +247,10 @@ test('คิวจากโทรศัพท์: ใช้ช่วงเวล
 });
 
 /* ---- payment ---- */
-test('รับเงินสด → ปิดคิว "เสร็จสิ้น" พร้อมบันทึกยอด', ({ E, click }) => {
+test('รับเงินสด → ปิดคิว "เสร็จสิ้น" พร้อมบันทึกยอด และเตือนสแกน QR สะสมแต้ม', ({ E, click, q }) => {
   const id = E("S.bookings.find(b => b.br==='s62' && b.status==='inprog').id");
   click(`[data-act="k-pay"][data-id="${id}"]`);
+  ok(q('#sheet .stampnote'), 'หน้ารับเงินต้องเตือนให้ลูกค้าสแกน QR สะสมแต้ม');
   click('[data-act="p-method"][data-m="cash"]');
   const b = E(`find('${id}')`);
   eq([b.status, b.pay.method, b.pay.amount], ['done', 'cash', b.price], 'สถานะ/วิธีจ่าย/ยอด');
@@ -289,14 +289,14 @@ test('รอสลิปแล้วลูกค้าเปลี่ยนใ�
   click(`[data-act="k-cash"][data-id="${id}"]`);
   eq([E(`find('${id}').status`), E(`find('${id}').pay.method`)], ['done', 'cash'], 'สถานะ/วิธีจ่าย');
 });
-test('ใช้แพ็กเกจและไม่มี add-on → ไม่มียอด, ปิดคิวเป็น "แพ็กเกจ"', ({ E, book, assign, click, q }) => {
+test('ใช้รางวัลสะสมแต้มและไม่มี add-on → ไม่มียอด, ปิดคิวเป็น "รางวัลสะสมแต้ม"', ({ E, book, assign, click, q }) => {
   const b = book({ time: 1020, pkg: true });
   assign(b.id, 2);
   click(`[data-act="k-st"][data-st="inprog"][data-id="${b.id}"]`);
   click(`[data-act="k-pay"][data-id="${b.id}"]`);
   ok(!q('#sheet').querySelector('[data-m="cash"]'), 'ต้องไม่ถามเงินสด/โอน');
   click('[data-act="p-method"][data-m="package"]');
-  eq([E(`find('${b.id}').status`), E(`find('${b.id}').pay.method`), E(`find('${b.id}').pay.amount`)], ['done', 'package', 0], 'ปิดคิวแพ็กเกจ');
+  eq([E(`find('${b.id}').status`), E(`find('${b.id}').pay.method`), E(`find('${b.id}').pay.amount`)], ['done', 'package', 0], 'ปิดคิวด้วยรางวัล');
 });
 
 /* ---- reports & log ---- */

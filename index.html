@@ -140,6 +140,7 @@ h3{font-size:15px}
 .chip.on{background:var(--olive-d);border-color:var(--olive-d);color:#fff}
 .chip:disabled{opacity:.45;cursor:not-allowed}
 .warn{background:#FBEBDD;border:1px solid #EDC8A6;color:#7A4520;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:14px}
+.stampnote{background:#E7F3E6;border:1px solid #BFDDBB;color:#2F5B2B;border-radius:12px;padding:8px 12px;font-size:13.5px}
 .okbox{background:#E6EEDC;border:1px solid #C5D6B2;color:#3F5B32;border-radius:12px;padding:10px 12px;font-size:14px}
 .q{display:grid;grid-template-columns:86px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px}
 .q.unassigned{border-left:5px solid var(--warn)}
@@ -178,6 +179,27 @@ tr.bad td{background:#F9E6E3}
 .toast.bad{background:var(--bad)}
 .toast[hidden]{display:none}
 @media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.phone{width:100%;max-width:100%;aspect-ratio:auto;padding:0;border-radius:18px;background:none;box-shadow:none}.scr{border-radius:18px;border:1px solid var(--line)}.sbar,.island,.homebar{display:none}#custApp{overflow:visible}#custApp>.lc-body{min-height:340px}#custApp>.lc-foot{padding-bottom:6px}.sum b{font-size:18px}.k-top{padding:10px}}
+.devwrap{flex:0 0 auto;min-width:0;max-width:100%}
+.devwrap>.phone,.devwrap>.tablet{transform-origin:0 0}
+/* guided demo */
+.demo-btn{background:var(--gold);color:#fff;border:0;border-radius:99px;padding:6px 16px;font-weight:600}
+main.demo{transform-origin:0 0;will-change:transform}
+#dBlock{position:fixed;inset:0;z-index:40}
+#dSpot{position:fixed;z-index:41;border-radius:16px;box-shadow:0 0 0 3px var(--gold),0 0 0 9999px #2a281f59;pointer-events:none;transition:all .55s cubic-bezier(.2,.7,.2,1)}
+#dCur{position:fixed;z-index:43;width:28px;height:28px;pointer-events:none;transition:left .7s cubic-bezier(.3,.7,.2,1),top .7s cubic-bezier(.3,.7,.2,1);filter:drop-shadow(0 2px 3px #0006);overflow:visible}
+#dRing{position:fixed;z-index:42;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:3px solid var(--gold);opacity:0;pointer-events:none}
+#dRing.tap{animation:tap .5s ease-out}
+@keyframes tap{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.8)}}
+#dCap{position:fixed;z-index:44;left:50%;bottom:18px;transform:translateX(-50%);width:min(560px,calc(100vw - 24px));background:#F8F5EF;border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 40px #2a281f55;padding:14px 16px;display:grid;gap:6px}
+#dCap .k{font:600 11px var(--caps);letter-spacing:.16em;color:var(--gold)}
+#dCap .ti{font:600 18px/1.35 var(--head)}
+#dCap .tx{font-size:14px;color:var(--muted)}
+#dCap .bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+#dCap .bar i{display:block;height:100%;background:var(--olive-d);transition:width .4s}
+#dCap .ctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+#dCap .ctl button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 14px;font-size:13.5px}
+#dCap .ctl button.go{background:var(--olive-d);color:#fff;border-color:var(--olive-d)}
+#dCap .ctl .sp{flex:1}
 </style>
 </head>
 <body>
@@ -187,11 +209,12 @@ tr.bad td{background:#F9E6E3}
     <button data-v="cust" class="on">ลูกค้า (LINE)</button>
     <button data-v="kiosk">iPad หน้าร้าน <span id="navBadge"></span></button>
     <button data-v="owner">เจ้าของร้าน</button>
+    <button class="demo-btn" id="demoBtn">▶ ดูเดโม</button>
   </nav>
 </header>
 <main>
   <section id="cust" class="view on">
-    <div class="phone"><div class="scr"><div class="sbar"><span>9:41</span><span><svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.3A10.6 10.6 0 0 0 8 .4C5.1.4 2.5 1.5.5 3.4l1.2 1.3A8.9 8.9 0 0 1 8 2.2Zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.2-1.3A7.1 7.1 0 0 0 8 4 7.1 7.1 0 0 0 3.1 5.9l1.2 1.3c1-.9 2.3-1.4 3.7-1.4Zm0 3.6c.5 0 1 .2 1.3.5L8 11.4 6.7 9.9c.3-.3.8-.5 1.3-.5Z"/></svg><svg viewBox="0 0 27 12" fill="none" stroke="currentColor"><rect x=".5" y=".5" width="22" height="11" rx="3.5" opacity=".45"/><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor" stroke="none"/><path d="M24.5 4v4" stroke-width="1.6" opacity=".45"/></svg></span></div><div id="custApp"></div></div><div class="island"></div><div class="homebar"></div></div>
+    <div class="devwrap"><div class="phone"><div class="scr"><div class="sbar"><span>9:41</span><span><svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.3A10.6 10.6 0 0 0 8 .4C5.1.4 2.5 1.5.5 3.4l1.2 1.3A8.9 8.9 0 0 1 8 2.2Zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.2-1.3A7.1 7.1 0 0 0 8 4 7.1 7.1 0 0 0 3.1 5.9l1.2 1.3c1-.9 2.3-1.4 3.7-1.4Zm0 3.6c.5 0 1 .2 1.3.5L8 11.4 6.7 9.9c.3-.3.8-.5 1.3-.5Z"/></svg><svg viewBox="0 0 27 12" fill="none" stroke="currentColor"><rect x=".5" y=".5" width="22" height="11" rx="3.5" opacity=".45"/><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor" stroke="none"/><path d="M24.5 4v4" stroke-width="1.6" opacity=".45"/></svg></span></div><div id="custApp"></div></div><div class="island"></div><div class="homebar"></div></div></div>
     <aside class="card note">
       <h3>ลองกดตามนี้</h3>
       <ul>
@@ -209,7 +232,7 @@ tr.bad td{background:#F9E6E3}
       </ul>
     </aside>
   </section>
-  <section id="kiosk" class="view"><div class="tablet"><span class="cam"></span><div id="kioskApp"></div></div></section>
+  <section id="kiosk" class="view"><div class="devwrap"><div class="tablet"><span class="cam"></span><div id="kioskApp"></div></div></div></section>
   <section id="owner" class="view"><div class="desk" id="ownerApp"></div></section>
 </main>
 <div id="modal" class="modal" hidden><div class="sheet" id="sheet"></div></div>
@@ -233,7 +256,7 @@ const AD = {
 };
 const STATUS = { unassigned: 'รอระบุช่าง', booked: 'รอรับบริการ', inprog: 'กำลังทำ', awaitpay: 'รอตรวจสลิป', done: 'เสร็จสิ้น', noshow: 'ไม่มาตามนัด', cancelled: 'ยกเลิก' };
 const SRC = { line: 'LINE', walk: 'Walk-in', phone: 'โทร' };
-const PAY = { cash: 'เงินสด', transfer: 'โอน', package: 'แพ็กเกจ' };
+const PAY = { cash: 'เงินสด', transfer: 'โอน', package: 'รางวัลสะสมแต้ม' };
 const BASE = new Date(2026, 10, 20);
 const dayLabel = d => new Date(BASE.getTime() + d * 864e5).toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' });
 const fmt = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
@@ -256,7 +279,7 @@ const S = {
   ],
   defaultCap: 2, buffer: 0, cutoffH: 2, paused: false, unread: 0, seq: 1021, slipSeq: 0,
   kBr: 's62', oBr: 'all', bookings: [], log: [], pd: null,
-  c: { screen: 'chat', br: 's62', svc: 's1', addons: [], day: 0, time: null, name: 'คุณมิ้นท์', phone: '', usePkg: false, pkgLeft: 7, last: null, mine: [],
+  c: { screen: 'chat', br: 's62', svc: 's1', addons: [], day: 0, time: null, name: 'คุณมิ้นท์', phone: '', usePkg: false, last: null, mine: [],
        msgs: [{ from: 'shop', html: 'สวัสดีค่ะ 😊 จองคิวได้เองตลอด 24 ชม. กดปุ่ม <b>จองคิว</b> ด้านล่างได้เลยค่ะ<br><br>📍 สุขุมวิท 62/1 หน้า 7-11 (10.00–21.00)<br>📍 แฟชั่นไอซ์แลนด์ หน้าคลินิก Ldc (09.00–20.00)' }] },
 };
 
@@ -326,9 +349,14 @@ const kioskWho = br => 'iPad ' + BR[br].name;
 
 /* ---------- customer (LINE) ---------- */
 function renderCust() {
+  const fresh = renderCust.screen !== S.c.screen; // keep scroll position while picking options, reset it on a new screen
+  renderCust.screen = S.c.screen;
+  renderCustScreen();
+  if (fresh) $('#custApp').scrollTop = 0;
+}
+function renderCustScreen() {
   const c = S.c, el = $('#custApp');
   $('.phone').classList.toggle('dark', c.screen === 'chat');
-  if (renderCust.screen !== c.screen) { renderCust.screen = c.screen; requestAnimationFrame(() => el.scrollTop = 0); } // keep scroll position while picking options
   const head = (back) => `<div class="ph-head">${back ? '<button class="back" data-act="c-chat">‹ แชท</button>' : ''}${LEAF('')}${LEAF('r')}<div class="logo">sōna</div><div class="tag">— hair wash &amp; blow dry —</div></div>`;
   if (c.screen === 'chat') {
     const waiting = c.mine.filter(b => b.status === 'awaitpay');
@@ -363,7 +391,7 @@ function renderCust() {
       <div class="ticket"><div class="small muted">รหัสจอง</div><div class="code">${b.id}</div>
         <div><b>${dayLabel(b.day)} · ${fmt(b.start)}–${fmt(b.start + b.dur)}</b></div>
         <div class="small">สาขา${BR[b.br].name} · ${svcLine(b)}</div>
-        <div class="small muted">ชำระที่ร้าน ${baht(b.price)} (เงินสดหรือโอน)${b.pkg ? ' · ใช้สิทธิ์แพ็กเกจ 1 ครั้ง' : ''}</div></div>
+        <div class="small muted">ชำระที่ร้าน ${baht(b.price)} (เงินสดหรือโอน)${b.pkg ? ' · ใช้รางวัลสระไดร์ฟรีจากบัตรสะสมแต้ม' : ''}</div></div>
       <p class="small muted" style="margin:0">ส่งรายละเอียดเข้าแชท LINE ของร้านแล้ว · ยกเลิกหรือเลื่อนได้ก่อนนัด ${S.cutoffH} ชม. ที่ปุ่ม "คิวของฉัน"</p>
       <button class="primary" data-act="c-chat">กลับไปที่แชท</button></div>`;
     return;
@@ -375,8 +403,8 @@ function renderCust() {
   el.innerHTML = head(true) + `<div class="ph-body">
     <div><div class="sec-t">1. เลือกสาขา</div><div class="brs">
       ${Object.entries(BR).map(([k, b]) => `<button class="${c.br === k ? 'on' : ''}" data-act="c-br" data-k="${k}"><b>${b.name}</b><br><span class="small muted">${fmt(b.open)}–${fmt(b.close)}</span></button>`).join('')}</div></div>
-    <div class="pkg"><div class="num" style="width:40px;height:40px;border-radius:50%;background:var(--olive-d);color:#F8F5EF;display:grid;place-items:center;flex:none;font-size:17px">10</div><div><b>แพ็กเกจสระไดร์ 10 ครั้ง</b><div class="small">เหลือ ${c.pkgLeft} ครั้ง</div></div>
-      <label><input type="checkbox" data-set="usePkg" ${c.usePkg ? 'checked' : ''} ${c.svc === 's1' && c.pkgLeft > 0 ? '' : 'disabled'}> ใช้สิทธิ์</label></div>
+    <div class="pkg"><div class="num" style="width:40px;height:40px;border-radius:50%;background:var(--olive-d);color:#F8F5EF;display:grid;place-items:center;flex:none;font-size:17px">★</div><div><b>บัตรสะสมแต้ม LINE</b><div class="small">ครบ 10 แต้ม สระไดร์ฟรี · พนักงานเช็กสิทธิ์ที่ร้าน</div></div>
+      <label><input type="checkbox" data-set="usePkg" ${c.usePkg ? 'checked' : ''} ${c.svc === 's1' ? '' : 'disabled'}> ใช้รางวัลฟรี</label></div>
     <div><div class="sec-t">2. เลือกบริการ</div><div style="display:grid;gap:8px">
       ${Object.entries(SV).map(([k, s]) => `<button class="svc ${c.svc === k ? 'on' : ''}" data-act="c-svc" data-k="${k}"><span class="ic">${ICON[k]}</span><span><span class="nm">${s.name}</span><br><span class="small muted">${s.desc} · ${s.min} นาที</span></span><span class="p">${s.price}.-<small>${k === 's1' ? 'ทุกความยาว' : 'Cool &amp; Refresh'}</small></span></button>`).join('')}
     </div></div>
@@ -430,7 +458,7 @@ function renderKiosk() {
         return `<div class="q ${b.status} ${b.status === 'done' ? 'past' : ''}">
           <div><div class="t">${fmt(b.start)}</div><div class="small muted">ถึง ${fmt(b.start + b.dur)}</div></div>
           <div><div><b>${esc(b.name)}</b> <span class="src s-${b.src}">${SRC[b.src]}</span></div>
-            <div class="small muted">${svcLine(b)} · ${baht(b.price)}${b.pkg ? ' · ใช้แพ็กเกจ' : ''}</div>
+            <div class="small muted">${svcLine(b)} · ${baht(b.price)}${b.pkg ? ' · ใช้รางวัลสะสมแต้ม' : ''}</div>
             <div class="small"><span class="pill st-${b.status}">${STATUS[b.status]}</span> ${b.staff ? 'ช่าง: <b>' + staffName(b.staff) + '</b>' : ''}
             ${b.status === 'awaitpay' ? `<span class="muted"> · ${b.src === 'line' ? 'รอลูกค้าส่งสลิปในแชท LINE' : 'ลูกค้าไม่ได้จองทาง LINE ให้สแกนสลิปจาก iPad'}</span>` : ''}</div></div>
           <div class="act">${acts}</div></div>`;
@@ -483,12 +511,14 @@ function openPhone() {
 function openPay(id) {
   const b = S.bookings.find(x => x.id === id);
   if (b.price === 0) {
-    openSheet(`<h2>ปิดคิว · ${esc(b.name)}</h2><div class="okbox">ใช้สิทธิ์แพ็กเกจ ไม่มียอดต้องชำระ</div>
-      <button class="primary" data-act="p-method" data-m="package" data-id="${id}">ปิดคิว</button><button class="ghost" data-act="m-close">ปิด</button>`);
+    openSheet(`<h2>ปิดคิว · ${esc(b.name)}</h2><div class="okbox">ลูกค้าใช้รางวัลสระไดร์ฟรี ไม่มียอดต้องชำระ</div>
+      <div class="small muted">เช็กในบัตรสะสมแต้ม LINE ของลูกค้าว่ามีรางวัลจริง แล้วให้ลูกค้ากดใช้รางวัลในบัตร</div><div class="stampnote">📱 อย่าลืม: ให้ลูกค้าสแกน QR สะสมแต้มในบัตรสะสมแต้ม LINE (ครบ 10 แต้ม สระไดร์ฟรี 1 ครั้ง)</div>
+      <button class="primary" data-act="p-method" data-m="package" data-id="${id}">ปิดคิว (ใช้รางวัล)</button><button class="ghost" data-act="m-close">ปิด</button>`);
     return;
   }
   openSheet(`<h2>รับเงิน · ${esc(b.name)}</h2>
     <div class="sum"><span>${svcLine(b)}</span><b>${baht(b.price)}</b></div>
+    <div class="stampnote">📱 อย่าลืม: ให้ลูกค้าสแกน QR สะสมแต้มในบัตรสะสมแต้ม LINE (ครบ 10 แต้ม สระไดร์ฟรี 1 ครั้ง)</div>
     <div class="bigbtns"><button data-act="p-method" data-m="cash" data-id="${id}"><span>💵</span>เงินสด</button><button data-act="p-method" data-m="transfer" data-id="${id}"><span>📲</span>โอน</button></div>
     <p class="small muted" style="margin:0">เลือก "โอน" แล้วระบบจะรอสลิป ${b.src === 'line' ? 'ลูกค้าส่งสลิปในแชท LINE ของร้านได้เลย ระบบตรวจและปิดคิวให้อัตโนมัติ' : 'ลูกค้ารายนี้ไม่ได้จองทาง LINE พนักงานกด "สแกนสลิป" แล้วส่องสลิปในมือถือลูกค้า'}</p>
     <button class="ghost" data-act="m-close">ปิด</button>`);
@@ -536,6 +566,7 @@ function renderOwner() {
     <div class="two">
       <div class="card"><h3>รายงานรายพนักงาน (รับเงินแล้ว)</h3><div class="tbl"><table><tr><th>ช่าง</th><th>สาขา</th><th class="n">คิว</th><th class="n">ยอด</th></tr>
         ${staff.map(s => { const m = paid.filter(b => b.staff === s.id); return `<tr><td>${s.name}</td><td class="small">${BR[s.br].name}</td><td class="n">${m.length}</td><td class="n">${baht(m.reduce((a, b) => a + b.pay.amount, 0))}</td></tr>`; }).join('')}</table></div>
+        <div class="row"><span>ใช้รางวัลบัตรสะสมแต้ม (สระไดร์ฟรี)</span><b>${paid.filter(b => b.pkg).length} ครั้ง</b></div>
         <h3 style="margin-top:14px">Add-on ที่ขายได้</h3><table>${Object.keys(AD).map(k => `<tr><td>${AD[k].name}</td><td class="n">${addonCount[k] || 0} ครั้ง</td></tr>`).join('')}</table></div>
       <div class="card"><h3>ตั้งค่าการจอง</h3>
         <div class="row"><span>ปิดรับจองออนไลน์ชั่วคราว</span><input type="checkbox" data-set="paused" ${S.paused ? 'checked' : ''}></div>
@@ -553,11 +584,14 @@ function renderOwner() {
 
 /* ---------- wiring ---------- */
 // shrink the device frames as a whole (true iPhone 16 Pro / iPad Pro 13 proportions) so they fit short laptop screens
-function fitDevices() {
-  const w = innerWidth, h = innerHeight;
-  $('.phone').style.zoom = w > 480 ? Math.min(1, (h - 96) / 868, (w - 32) / 409) : '';
-  $('.tablet').style.zoom = w > 860 ? Math.min(1, (h - 96) / 885, (w - 32) / 1180) : '';
+function fitOne(dev, W, H, minW) {
+  const wrap = dev.parentElement, w = innerWidth, h = innerHeight;
+  if (w <= minW) { dev.style.transform = ''; wrap.style.width = '100%'; wrap.style.height = ''; return; }
+  const k = Math.min(1, (h - 96) / H, (w - 32) / W);
+  dev.style.transform = k < 1 ? `scale(${k})` : '';
+  wrap.style.width = W * k + 'px'; wrap.style.height = H * k + 'px';
 }
+function fitDevices() { fitOne($('.phone'), 409, 868, 480); fitOne($('.tablet'), 1180, 885, 860); }
 addEventListener('resize', fitDevices);
 function renderAll() { renderCust(); renderKiosk(); renderOwner(); }
 function toast(msg, bad = false) { const t = $('#toast'); t.innerHTML = msg; t.className = 'toast' + (bad ? ' bad' : ''); t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3800); }
@@ -582,7 +616,7 @@ document.addEventListener('click', e => {
     else {
       const b = mk(c.br, c.day, c.time, c.svc, [...c.addons], 'unassigned', null, c.name.trim() || 'ลูกค้า LINE', 'line', c.usePkg && c.svc === 's1', c.phone);
       S.bookings.push(b); c.mine.push(b); c.last = b; c.screen = 'done';
-      if (b.pkg) { c.pkgLeft--; c.usePkg = false; }
+      c.usePkg = false;
       logEv(stamp(), b.br, b.name + ' (LINE)', 'จองคิว', `${b.id} ${dayLabel(b.day)} ${fmt(b.start)} · ${svcLine(b)} · ${baht(b.price)}`);
       c.msgs.push({ from: 'me', html: `จองคิว ${b.id}` });
       c.msgs.push({ from: 'shop', flex: true, html: `<div class="fh">✓ ยืนยันการจอง ${b.id}</div><div class="fb">${dayLabel(b.day)} · ${fmt(b.start)}–${fmt(b.start + b.dur)}<br>สาขา${BR[b.br].name}<br>${svcLine(b)}<br><b>${baht(b.price)}</b> ชำระที่ร้าน</div>` });
@@ -591,7 +625,7 @@ document.addEventListener('click', e => {
     }
   }
   else if (a === 'c-cancel') {
-    const b = find(el.dataset.id); logEv(stamp(), b.br, b.name + ' (LINE)', 'ยกเลิกคิว', `${b.id} ${dayLabel(b.day)} ${fmt(b.start)}`); b.status = 'cancelled'; if (b.pkg) c.pkgLeft++;
+    const b = find(el.dataset.id); logEv(stamp(), b.br, b.name + ' (LINE)', 'ยกเลิกคิว', `${b.id} ${dayLabel(b.day)} ${fmt(b.start)}`); b.status = 'cancelled';
     c.msgs.push({ from: 'shop', html: `ยกเลิกคิว ${b.id} เรียบร้อยแล้วค่ะ` });
     if (b.day === 0) { S.unread++; toast(`🔔 iPad ${BR[b.br].name}: ${esc(b.name)} ยกเลิกคิว ${fmt(b.start)}`); }
   }
@@ -636,7 +670,7 @@ document.addEventListener('click', e => {
   else if (a === 'p-method') {
     const b = find(el.dataset.id), m = el.dataset.m;
     if (m === 'transfer') { logEv(stamp(), b.br, kioskWho(b.br), 'เลือกชำระแบบโอน', `${b.id} ${b.name} ${baht(b.price)}`); setStatus(b, 'awaitpay', 'ระบบ'); }
-    else { b.pay = { method: m, amount: b.price, ref: '' }; logEv(stamp(), b.br, kioskWho(b.br), m === 'cash' ? 'รับเงินสด' : 'ใช้สิทธิ์แพ็กเกจ', `${b.id} ${b.name} ${baht(b.price)}`); setStatus(b, 'done', 'ระบบ'); }
+    else { b.pay = { method: m, amount: b.price, ref: '' }; logEv(stamp(), b.br, kioskWho(b.br), m === 'cash' ? 'รับเงินสด' : 'ใช้รางวัลสะสมแต้ม', `${b.id} ${b.name} ${baht(b.price)}`); setStatus(b, 'done', 'ระบบ'); }
     closeSheet();
   }
   else if (a === 's-res') {
@@ -688,6 +722,123 @@ console.assert(!fits('fi', 0, 1170, 40), 'Fashion Island closes at 20:00');
 console.assert(fits('fi', 1, 540, 40), 'Fashion Island opens 09:00');
 fitDevices();
 renderAll();
+
+/* ---------- guided demo (storyboard) ---------- */
+const D = { on: false, paused: false, skip: false, i: 0 };
+const lastFlex = () => [...document.querySelectorAll('#custApp .bub.flex')].pop();
+const myId = () => S.c.last && S.c.last.id;
+const DEMO = [
+  { v: 'cust', t: '.phone', z: 1, title: 'ลูกค้าเข้า LINE ของร้านเหมือนเดิม', text: 'ไม่ต้องโหลดแอปใหม่ ไม่ต้องสมัครสมาชิก ลูกค้าเห็นปุ่ม "จองคิว" บน Rich menu ทันที' },
+  { v: 'cust', t: '[data-act="c-open"]', z: 1.25, click: 1, title: 'กด "จองคิว"', text: 'หน้าจองเปิดในแอป LINE เลย ระบบรู้ชื่อลูกค้าจาก LINE ให้อัตโนมัติ' },
+  { v: 'cust', t: '[data-act="c-br"][data-k="s62"]', z: 1.4, click: 1, title: 'เลือกสาขา', text: 'แต่ละสาขามีเวลาเปิด-ปิดของตัวเอง ระบบคิดเวลาว่างแยกกัน' },
+  { v: 'cust', t: '[data-act="c-svc"][data-k="s1"]', z: 1.4, click: 1, title: 'เลือกบริการ', text: 'เมนูและราคาตรงกับป้ายหน้าร้าน' },
+  { v: 'cust', t: '[data-act="c-add"][data-k="treat"]', z: 1.4, click: 1, title: 'เลือก Add-on', text: 'ระบบรวมราคาและเวลาให้เอง ทรีตเมนต์ +50 บาท ไม่เพิ่มเวลา' },
+  { v: 'cust', t: '.slots', z: 1.3, title: 'เห็นเฉพาะเวลาที่ว่างจริง', text: 'ช่องที่ขีดฆ่าคือคิวเต็มตามจำนวนช่างที่เข้าเวร หรือทำไม่ทันก่อนร้านปิด ลูกค้าไม่เห็นชื่อหรือคิวของคนอื่น' },
+  { v: 'cust', t: '.slot[data-t="1020"]', z: 1.4, click: 1, title: 'เลือกเวลา 17:00', text: '' },
+  { v: 'cust', t: '[data-set="phone"]', z: 1.4, type: '0812345678', title: 'กรอกเบอร์โทรครั้งเดียว', text: 'ใช้ยืนยันตัวตนตอนลูกค้ายกเลิกหรือเลื่อนคิวเอง' },
+  { v: 'cust', t: '[data-act="c-book"]', z: 1.35, click: 1, title: 'กดยืนยันการจอง', text: '' },
+  { v: 'cust', t: '.ticket', z: 1.3, title: 'ได้รหัสจองทันที', text: 'ลูกค้ายกเลิกหรือเลื่อนเองได้ก่อนนัดตามเวลาที่ร้านกำหนด' },
+  { v: 'cust', t: '[data-act="c-chat"]', z: 1.3, click: 1, title: 'กลับไปที่แชท', text: '' },
+  { v: 'cust', t: lastFlex, z: 1.35, title: 'ข้อความยืนยันเข้าแชทเดิม', text: 'ส่งแบบตอบกลับ จึงไม่กินโควต้าข้อความของ LINE OA แบบฟรี' },
+  { v: 'kiosk', t: '.bell', z: 1.5, title: 'iPad หน้าร้านเด้งเตือนทันที', text: 'พนักงานไม่ต้องหยุดสระผมมาตอบแชท และไม่ต้องลง Google Calendar เองอีก' },
+  { v: 'kiosk', t: () => document.querySelector(`[data-act="k-assign"][data-id="${myId()}"]`)?.closest('.q'), z: 1.25, title: 'คิวใหม่อยู่ในตารางของสาขาแล้ว', text: 'สถานะ "รอระบุช่าง"' },
+  { v: 'kiosk', t: '.k-side .card', z: 1.35, title: 'เช้า: ติ๊กชื่อพนักงานที่มาทำงาน', text: 'ระบบรับคิวซ้อนกันได้ไม่เกินจำนวนช่างที่มาจริง ถ้าช่างไม่พอจะขึ้นเตือนและปิดรับจองช่วงนั้นให้เอง' },
+  { v: 'kiosk', t: () => document.querySelector(`[data-act="k-assign"][data-id="${myId()}"]`), z: 1.3, click: 1, title: 'กด "จ่ายงาน"', text: '' },
+  { v: null, t: '[data-act="m-pick"][data-id="2"]', click: 1, title: 'เลือกช่างที่รับงาน', text: 'ช่างที่ติดคิวช่วงเวลาเดียวกันจะเลือกไม่ได้ ระบบกันจ่ายงานซ้อน' },
+  { v: null, t: '#pin', type: '1234', title: 'ช่างยืนยันด้วย PIN 4 หลัก', text: 'บันทึกว่าใครทำคิวไหน ใช้คิดค่าตอบแทนได้แม่นยำ' },
+  { v: null, t: '[data-act="m-assign"]', click: 1, title: 'ยืนยัน', text: '' },
+  { v: 'kiosk', t: () => document.querySelector(`[data-act="k-st"][data-st="inprog"][data-id="${myId()}"]`), z: 1.3, click: 1, title: 'ลูกค้ามาถึง กด "เริ่มทำ"', text: '' },
+  { v: 'kiosk', t: () => document.querySelector(`[data-act="k-pay"][data-id="${myId()}"]`), z: 1.3, click: 1, title: 'ทำเสร็จ กด "รับเงิน"', text: 'หน้าจอเตือนพนักงานทุกครั้งให้ลูกค้าสแกน QR สะสมแต้มในบัตร LINE ตามเดิม' },
+  { v: null, t: '[data-act="p-method"][data-m="transfer"]', click: 1, title: 'ลูกค้าเลือกโอนเงิน', text: 'คิวเปลี่ยนเป็น "รอตรวจสลิป"' },
+  { v: 'cust', t: () => document.querySelector(`[data-act="c-slip"][data-id="${myId()}"]`), z: 1.35, click: 1, title: 'ลูกค้าส่งสลิปในแชท LINE', text: 'ระบบตรวจกับธนาคาร (ยอดเงิน บัญชีร้าน สลิปซ้ำ) แล้วปิดคิวให้อัตโนมัติ' },
+  { v: 'cust', t: lastFlex, z: 1.35, title: 'ลูกค้าได้รับยืนยันการชำระเงิน', text: 'พนักงานไม่ต้องเปิดดูสลิป และไม่ต้องพิมพ์บอกเจ้าของร้านอีก' },
+  { v: 'owner', t: '.kpis', z: 1.1, title: 'เจ้าของร้านเห็นยอดทันที', text: 'แยกเงินสด/โอน แยกสาขา และแยกรายช่าง' },
+  { v: 'owner', t: () => [...document.querySelectorAll('#ownerApp > .card')].pop(), z: 1, title: 'ทุกการกระทำถูกบันทึกไว้', text: 'ใครทำอะไร เมื่อไร แก้ไขหรือลบไม่ได้ ตรวจสอบย้อนหลังได้ทุกเมื่อ' },
+];
+const hold = ms => new Promise(r => setTimeout(r, ms)); // not skippable: "next" only shortens reading time
+const el$ = t => typeof t === 'function' ? t() : document.querySelector(t);
+function dSleep(ms) {
+  return new Promise(res => {
+    let left = ms, last = Date.now();
+    const tick = () => {
+      const now = Date.now(); if (!D.paused) left -= now - last; last = now;
+      if (!D.on || D.skip || left <= 0) return res();
+      setTimeout(tick, 60);
+    };
+    tick();
+  });
+}
+function dZoom(target, z) {
+  const m = $('main');
+  const zz = innerWidth > 860 ? z : 1;
+  const prev = m.style.transform;
+  m.style.transition = 'none'; m.style.transform = 'none';
+  const r = target.getBoundingClientRect(), mr = m.getBoundingClientRect();
+  m.style.transform = prev; void m.offsetWidth;
+  m.style.transition = 'transform .8s cubic-bezier(.2,.7,.2,1)';
+  const zfit = Math.min(zz, (Math.max(innerHeight - 190, 200) - 30) / r.height, (innerWidth - 40) / r.width); // zoom out when the target is too big to show above the caption
+  const cx = r.left + r.width / 2 - mr.left, cy = r.top + r.height / 2 - mr.top;
+  const vy = Math.max(innerHeight - 190, 200) / 2 + 10; // keep the target above the caption card
+  m.style.transform = `translate(${innerWidth / 2 - mr.left - cx * zfit}px, ${vy - mr.top - cy * zfit}px) scale(${zfit})`;
+}
+function dPlace(target) {
+  const r = target.getBoundingClientRect(), pad = 6;
+  $('#dSpot').dataset.step = D.i;
+  Object.assign($('#dSpot').style, { opacity: 1, left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px' });
+  const x = r.left + Math.min(r.width / 2, 60), y = r.top + r.height / 2;
+  Object.assign($('#dCur').style, { left: x + 'px', top: y + 'px' });
+  Object.assign($('#dRing').style, { left: x + 'px', top: y + 'px' });
+}
+function dCaption(st, i) {
+  $('#dCap').innerHTML = `<div class="k">DEMO · ${i + 1} / ${DEMO.length}</div><div class="ti">${st.title}</div>${st.text ? `<div class="tx">${st.text}</div>` : ''}
+    <div class="bar"><i style="width:${(i + 1) / DEMO.length * 100}%"></i></div>
+    <div class="ctl"><button data-d="pause">${D.paused ? '▶ เล่นต่อ' : '⏸ หยุดชั่วคราว'}</button><button data-d="next">ถัดไป ›</button><span class="sp"></span><button class="go" data-d="exit">ลองกดเอง</button></div>`;
+}
+async function dRun() {
+  D.on = true; scrollTo(0, 0);
+  document.body.insertAdjacentHTML('beforeend', '<div id="dBlock"></div><div id="dSpot"></div><div id="dRing"></div><svg id="dCur" viewBox="0 0 24 24"><path d="M4 2l15 9.5-6.6 1.4L16 20l-3 1.4-3.6-7.2L4 18.6z" fill="#fff" stroke="#3B3A30" stroke-width="1.4" stroke-linejoin="round"/></svg><div id="dCap"></div>');
+  Object.assign($('#dCur').style, { left: innerWidth / 2 + 'px', top: innerHeight / 2 + 'px' });
+  $('main').classList.add('demo');
+  for (D.i = 0; D.i < DEMO.length && D.on; D.i++) {
+    const st = DEMO[D.i];
+    D.skip = false;
+    if (st.v) document.querySelector(`[data-v="${st.v}"]`).click();
+    await hold(150);
+    let tg = el$(st.t);
+    if (!tg) { console.warn('demo: missing target', st.title); continue; }
+    dCaption(st, D.i);
+    if (st.v) { dZoom(tg, st.z); await hold(850); } else await hold(200); // let the zoom settle before measuring
+    tg = el$(st.t); dPlace(tg);
+    await hold(700);
+    if (st.type) {
+      tg.value = '';
+      for (const ch of st.type) { if (!D.on) break; tg.value += ch; tg.dispatchEvent(new Event('input', { bubbles: true })); await new Promise(r => setTimeout(r, 90)); }
+    }
+    if (st.click) {
+      const ring = $('#dRing'); ring.classList.remove('tap'); void ring.offsetWidth; ring.classList.add('tap');
+      await new Promise(r => setTimeout(r, 250));
+      el$(st.t)?.click(); // the step's action always runs, even when the viewer skips ahead
+      $('#dSpot').style.opacity = 0;
+    }
+    D.skip = false;
+    await dSleep(st.click && !st.text ? 900 : 2600 + (st.text ? st.text.length * 25 : 0));
+  }
+  if (!D.on) return;
+  $('main').style.transform = 'none';
+  Object.assign($('#dSpot').style, { left: '50%', top: '50%', width: '0px', height: '0px' });
+  $('#dCur').style.display = 'none';
+  $('#dCap').innerHTML = `<div class="k">จบเดโม</div><div class="ti">ทั้งหมดนี้ทำงานต่อกันอัตโนมัติ ตั้งแต่ลูกค้าจองจนเจ้าของร้านเห็นยอด</div>
+    <div class="ctl"><button data-d="again">↺ ดูอีกครั้ง</button><span class="sp"></span><button class="go" data-d="exit">ลองกดเอง</button></div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-d]'); if (!b) return;
+  if (b.dataset.d === 'pause') { D.paused = !D.paused; b.textContent = D.paused ? '▶ เล่นต่อ' : '⏸ หยุดชั่วคราว'; }
+  else if (b.dataset.d === 'next') D.skip = true;
+  else if (b.dataset.d === 'again') location.search = '?demo';
+  else if (b.dataset.d === 'exit') { D.on = false; location.href = location.pathname; }
+});
+$('#demoBtn').addEventListener('click', () => { location.search = '?demo'; });
+if (new URLSearchParams(location.search).has('demo')) document.fonts.ready.then(() => setTimeout(dRun, 300));
 </script>
 </body>
 </html>
