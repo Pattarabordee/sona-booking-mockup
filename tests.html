@@ -30,7 +30,7 @@ const ok = (cond, msg) => { if (!cond) throw new Error(msg); };
 function fresh() {
   return new Promise(res => {
     const f = document.createElement('iframe');
-    f.src = 'index.html?t=' + Math.random();
+    f.src = 'index.html?try&t=' + Math.random(); // ?try skips the auto-playing demo
     f.onload = () => res(f);
     document.body.appendChild(f);
   });

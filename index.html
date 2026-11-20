@@ -185,8 +185,8 @@ tr.bad td{background:#F9E6E3}
 .demo-btn{background:var(--gold);color:#fff;border:0;border-radius:99px;padding:6px 16px;font-weight:600}
 main.demo{transform-origin:0 0;will-change:transform}
 #dBlock{position:fixed;inset:0;z-index:40}
-#dSpot{position:fixed;z-index:41;border-radius:16px;box-shadow:0 0 0 3px var(--gold),0 0 0 9999px #2a281f59;pointer-events:none;transition:all .55s cubic-bezier(.2,.7,.2,1)}
-#dCur{position:fixed;z-index:43;width:28px;height:28px;pointer-events:none;transition:left .7s cubic-bezier(.3,.7,.2,1),top .7s cubic-bezier(.3,.7,.2,1);filter:drop-shadow(0 2px 3px #0006);overflow:visible}
+#dSpot{position:fixed;z-index:41;border-radius:16px;box-shadow:0 0 0 3px var(--gold),0 0 0 9999px #2a281f59;pointer-events:none;transition:all .4s cubic-bezier(.2,.7,.2,1)}
+#dCur{position:fixed;z-index:43;width:28px;height:28px;pointer-events:none;transition:left .45s cubic-bezier(.3,.7,.2,1),top .45s cubic-bezier(.3,.7,.2,1);filter:drop-shadow(0 2px 3px #0006);overflow:visible}
 #dRing{position:fixed;z-index:42;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:3px solid var(--gold);opacity:0;pointer-events:none}
 #dRing.tap{animation:tap .5s ease-out}
 @keyframes tap{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.8)}}
@@ -775,7 +775,7 @@ function dZoom(target, z) {
   m.style.transition = 'none'; m.style.transform = 'none';
   const r = target.getBoundingClientRect(), mr = m.getBoundingClientRect();
   m.style.transform = prev; void m.offsetWidth;
-  m.style.transition = 'transform .8s cubic-bezier(.2,.7,.2,1)';
+  m.style.transition = 'transform .55s cubic-bezier(.2,.7,.2,1)';
   const zfit = Math.min(zz, (Math.max(innerHeight - 190, 200) - 30) / r.height, (innerWidth - 40) / r.width); // zoom out when the target is too big to show above the caption
   const cx = r.left + r.width / 2 - mr.left, cy = r.top + r.height / 2 - mr.top;
   const vy = Math.max(innerHeight - 190, 200) / 2 + 10; // keep the target above the caption card
@@ -807,21 +807,21 @@ async function dRun() {
     let tg = el$(st.t);
     if (!tg) { console.warn('demo: missing target', st.title); continue; }
     dCaption(st, D.i);
-    if (st.v) { dZoom(tg, st.z); await hold(850); } else await hold(200); // let the zoom settle before measuring
+    if (st.v) { dZoom(tg, st.z); await hold(600); } else await hold(150); // let the zoom settle before measuring
     tg = el$(st.t); dPlace(tg);
-    await hold(700);
+    await hold(450);
     if (st.type) {
       tg.value = '';
-      for (const ch of st.type) { if (!D.on) break; tg.value += ch; tg.dispatchEvent(new Event('input', { bubbles: true })); await new Promise(r => setTimeout(r, 90)); }
+      for (const ch of st.type) { if (!D.on) break; tg.value += ch; tg.dispatchEvent(new Event('input', { bubbles: true })); await new Promise(r => setTimeout(r, 55)); }
     }
     if (st.click) {
       const ring = $('#dRing'); ring.classList.remove('tap'); void ring.offsetWidth; ring.classList.add('tap');
-      await new Promise(r => setTimeout(r, 250));
+      await new Promise(r => setTimeout(r, 180));
       el$(st.t)?.click(); // the step's action always runs, even when the viewer skips ahead
       $('#dSpot').style.opacity = 0;
     }
     D.skip = false;
-    await dSleep(st.click && !st.text ? 900 : 2600 + (st.text ? st.text.length * 25 : 0));
+    await dSleep(st.click && !st.text ? 550 : 1600 + (st.text ? st.text.length * 18 : 0));
   }
   if (!D.on) return;
   $('main').style.transform = 'none';
@@ -834,11 +834,11 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-d]'); if (!b) return;
   if (b.dataset.d === 'pause') { D.paused = !D.paused; b.textContent = D.paused ? '▶ เล่นต่อ' : '⏸ หยุดชั่วคราว'; }
   else if (b.dataset.d === 'next') D.skip = true;
-  else if (b.dataset.d === 'again') location.search = '?demo';
-  else if (b.dataset.d === 'exit') { D.on = false; location.href = location.pathname; }
+  else if (b.dataset.d === 'again') location.href = location.pathname;
+  else if (b.dataset.d === 'exit') { D.on = false; location.search = '?try'; }
 });
-$('#demoBtn').addEventListener('click', () => { location.search = '?demo'; });
-if (new URLSearchParams(location.search).has('demo')) document.fonts.ready.then(() => setTimeout(dRun, 300));
+$('#demoBtn').addEventListener('click', () => { location.href = location.pathname; });
+if (!new URLSearchParams(location.search).has('try')) document.fonts.ready.then(() => setTimeout(dRun, 200));
 </script>
 </body>
 </html>
