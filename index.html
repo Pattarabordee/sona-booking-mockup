@@ -56,7 +56,7 @@ h3{font-size:15px}
 .svc.on{border-color:var(--olive-d);background:#F4F1E6}
 .svc .ic{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;flex:none}
 .svc>span:nth-child(2),.pkg>div:nth-child(2){flex:1;min-width:0}
-.svc .p{margin-left:auto;font:600 22px "Cormorant Garamond",serif}
+.svc .p{margin-left:auto;font:600 19px "IBM Plex Sans Thai",sans-serif;white-space:nowrap}
 .add{display:flex;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px dashed var(--line)}
 .add:last-child{border:0}
 .add span.r{margin-left:auto;color:var(--muted);font-size:13px;text-align:right}
@@ -70,11 +70,11 @@ h3{font-size:15px}
 .pkg{background:linear-gradient(135deg,#4F7D4B,#678F5E);color:#fff;border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center}
 .pkg label{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:13px;white-space:nowrap}
 .sum{background:#F4F1E6;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.sum b{font:700 24px "Cormorant Garamond",serif;white-space:nowrap}
+.sum b{font:600 21px "IBM Plex Sans Thai",sans-serif;white-space:nowrap}
 .field{display:grid;gap:4px;font-size:13px}
 .field input,.field select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;min-width:0}
 .ticket{border:1.5px dashed var(--gold);border-radius:14px;padding:14px;text-align:center;background:#fff}
-.ticket .code{font:700 30px "Cormorant Garamond",serif;letter-spacing:.08em;color:var(--olive-d)}
+.ticket .code{font:600 26px "IBM Plex Sans Thai",sans-serif;letter-spacing:.04em;color:var(--olive-d)}
 .note h3{font-size:14px}
 .note ul{margin:0;padding-left:18px;font-size:13.5px}
 .note li{margin:4px 0}
@@ -126,7 +126,7 @@ h3{font-size:15px}
 .desk{width:min(1120px,100%);display:grid;gap:14px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 @media(max-width:720px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.kpi .v{font:700 28px "Cormorant Garamond",serif}
+.kpi .v{font:600 24px/1.3 "IBM Plex Sans Thai",sans-serif;font-variant-numeric:tabular-nums}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 @media(max-width:720px){.two{grid-template-columns:minmax(0,1fr)}}
 .tbl{overflow-x:auto}
@@ -148,7 +148,7 @@ tr.bad td{background:#F9E6E3}
 .toast{position:fixed;right:16px;bottom:16px;z-index:30;background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;max-width:min(360px,calc(100vw - 32px));box-shadow:0 8px 24px #0004}
 .toast.bad{background:var(--bad)}
 .toast[hidden]{display:none}
-@media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.tablet{border-width:6px;border-radius:18px}.sum b{font-size:20px}.k-top{padding:10px}}
+@media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.tablet{border-width:6px;border-radius:18px}.sum b{font-size:18px}.k-top{padding:10px}}
 </style>
 </head>
 <body>
@@ -494,7 +494,7 @@ function renderOwner() {
     <div class="seg">${[['all', 'ทุกสาขา'], ...Object.entries(BR).map(([k, b]) => [k, b.name])].map(([k, n]) => `<button class="${S.oBr === k ? 'on' : ''}" data-act="o-br" data-k="${k}">${n}</button>`).join('')}</div>
     <div class="kpis">
       <div class="card kpi"><div class="small muted">รับเงินแล้ววันนี้</div><div class="v">${baht(sum('cash') + sum('transfer'))}</div></div>
-      <div class="card kpi"><div class="small muted">เงินสด / โอน</div><div class="v" style="font-size:22px">${baht(sum('cash'))} / ${baht(sum('transfer'))}</div></div>
+      <div class="card kpi"><div class="small muted">เงินสด / โอน</div><div class="v" style="font-size:19px">${baht(sum('cash'))} / ${baht(sum('transfer'))}</div></div>
       <div class="card kpi"><div class="small muted">รอตรวจสลิป</div><div class="v">${today.filter(b => b.status === 'awaitpay').length}</div></div>
       <div class="card kpi"><div class="small muted">คิววันนี้ (ไม่มา)</div><div class="v">${today.filter(active).length} <span class="small muted">(${today.filter(b => b.status === 'noshow').length})</span></div></div></div>
     <div class="two">
