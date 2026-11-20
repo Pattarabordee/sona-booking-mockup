@@ -776,10 +776,14 @@ function dZoom(target, z) {
   const r = target.getBoundingClientRect(), mr = m.getBoundingClientRect();
   m.style.transform = prev; void m.offsetWidth;
   m.style.transition = 'transform .55s cubic-bezier(.2,.7,.2,1)';
-  const zfit = Math.min(zz, (Math.max(innerHeight - 190, 200) - 30) / r.height, (innerWidth - 40) / r.width); // zoom out when the target is too big to show above the caption
+  const avail = Math.max(innerHeight - 190, 200) - 30, small = innerWidth <= 860;
+  // phones: no scaling or sideways shift, only scroll the target into view; desktops: zoom out when the target is too big for the space above the caption
+  const zfit = small ? 1 : Math.min(zz, avail / r.height, (innerWidth - 40) / r.width);
   const cx = r.left + r.width / 2 - mr.left, cy = r.top + r.height / 2 - mr.top;
   const vy = Math.max(innerHeight - 190, 200) / 2 + 10; // keep the target above the caption card
-  m.style.transform = `translate(${innerWidth / 2 - mr.left - cx * zfit}px, ${vy - mr.top - cy * zfit}px) scale(${zfit})`;
+  const tx = small ? 0 : innerWidth / 2 - mr.left - cx * zfit;
+  const ty = small && r.height > avail ? 64 - r.top : vy - mr.top - cy * zfit;
+  m.style.transform = `translate(${tx}px, ${ty}px) scale(${zfit})`;
 }
 function dPlace(target) {
   const r = target.getBoundingClientRect(), pad = 6;
