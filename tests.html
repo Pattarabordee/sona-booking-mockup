@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>sōna Logic Tests</title>
+<style>
+body{margin:16px;font:14px/1.5 system-ui,"IBM Plex Sans Thai",sans-serif;background:#F8F5EF;color:#3B3A30}
+h1{font-size:20px;margin:0 0 4px}
+#sum{font-weight:600;margin:0 0 12px}
+table{border-collapse:collapse;width:100%;max-width:980px}
+td,th{text-align:left;padding:5px 8px;border-bottom:1px solid #D9D0C2;vertical-align:top}
+.p{color:#2E6B2E}.f{color:#B3261E;font-weight:600}
+iframe{position:absolute;left:-10000px;top:0;width:1280px;height:900px}
+</style>
+</head>
+<body>
+<h1>sōna · business logic tests</h1>
+<p id="sum">กำลังทดสอบ…</p>
+<table><thead><tr><th>#</th><th>กติกาที่ทดสอบ</th><th>ผล</th></tr></thead><tbody id="t"></tbody></table>
+<script>
+// Each test loads a fresh copy of index.html so no state leaks between cases.
+const T = [];
+const test = (name, fn) => T.push({ name, fn });
+function eq(got, want, msg) {
+  if (JSON.stringify(got) !== JSON.stringify(want)) throw new Error(`${msg}: ต้องได้ ${JSON.stringify(want)} แต่ได้ ${JSON.stringify(got)}`);
+}
+const ok = (cond, msg) => { if (!cond) throw new Error(msg); };
+function fresh() {
+  return new Promise(res => {
+    const f = document.createElement('iframe');
+    f.src = 'index.html?t=' + Math.random();
+    f.onload = () => res(f);
+    document.body.appendChild(f);
+  });
+}
+function kit(w) {
+  const E = s => w.eval(s);
+  const q = s => { const e = w.document.querySelector(s); if (!e) throw new Error('หาไม่เจอ ' + s); return e; };
+  const click = s => q(s).click();
+  const type = (s, v) => { const e = q(s); e.value = v; e.dispatchEvent(new w.Event('input', { bubbles: true })); };
+  const change = (s, v) => { const e = q(s); if (e.type === 'checkbox') e.checked = v; else e.value = v; e.dispatchEvent(new w.Event('change', { bubbles: true })); };
+  const book = ({ br = 's62', svc = 's1', addons = [], day = 0, time, phone = '0812345678', pkg = false }) => {
+    E("S.c.screen = 'book'; renderAll()");
+    click(`[data-act="c-br"][data-k="${br}"]`);
+    click(`[data-act="c-svc"][data-k="${svc}"]`);
+    for (const a of addons) click(`[data-act="c-add"][data-k="${a}"]`);
+    if (pkg) change('[data-set="usePkg"]', true);
+    click(`[data-act="c-day"][data-d="${day}"]`);
+    click(`.slot[data-t="${time}"]`);
+    type('[data-set="phone"]', phone);
+    const before = E('S.bookings.length');
+    click('[data-act="c-book"]');
+    return E('S.bookings.length') > before ? E('S.c.last') : null;
+  };
+  const assign = (id, staffId, pin = '1234') => {
+    click(`[data-act="k-assign"][data-id="${id}"]`);
+    click(`[data-act="m-pick"][data-id="${staffId}"]`);
+    type('#pin', pin);
+    click('[data-act="m-assign"]');
+  };
+  const lastLog = () => E('S.log[S.log.length - 1]');
+  return { w, E, q, click, type, change, book, assign, lastLog };
+}
+
+/* ---- capacity ---- */
+test('คิวซ้อนกันได้ไม่เกินจำนวนพนักงานที่เข้าเวร (14:00 มี 2 คิว, เข้าเวร 2 คน → เต็ม)', ({ E }) => {
+  eq(E("cap('s62',0)"), 2, 'จำนวนพนักงานเข้าเวร');
+  eq(E("fits('s62',0,840,40)"), false, '14:00 ต้องเต็ม');
+  eq(E("fits('s62',0,1200,40)"), true, '20:00 ต้องว่าง');
+});
+test('เช็กชื่อพนักงานเพิ่ม → รับคิวซ้อนได้เพิ่มทันที', ({ E, click }) => {
+  click('[data-act="k-staff"][data-id="3"]');
+  eq(E("cap('s62',0)"), 3, 'จำนวนพนักงานหลังเช็กชื่อแพร');
+  eq(E("fits('s62',0,840,40)"), true, '14:00 ต้องรับได้อีก 1 คิว');
+});
+test('พนักงานน้อยกว่าคิวที่จองไว้ → ไม่ลบคิวลูกค้า, ขึ้นแถบเตือน, ปิดรับจองช่วงนั้น', ({ E, click, w }) => {
+  const n = E('S.bookings.length');
+  click('[data-act="k-staff"][data-id="2"]');
+  eq(E('S.bookings.length'), n, 'จำนวนคิวต้องเท่าเดิม');
+  const ov = E("overloads('s62').map(([a,b]) => fmt(a)+'-'+fmt(b))");
+  ok(ov.includes('14:00-14:40'), 'ต้องเตือนช่วง 14:00-14:40 แต่ได้ ' + ov.join(','));
+  ok([...w.document.querySelectorAll('#kioskApp .warn')].some(e => e.textContent.includes('14:00')), 'หน้า iPad ต้องแสดงแถบเตือนช่วง 14:00');
+  eq(E("slotOk('s62',0,840,40)"), false, 'ลูกค้าใหม่ต้องจอง 14:00 ไม่ได้');
+});
+test('ไม่มา → คืนที่ว่างให้คนอื่นจองได้', ({ E, click }) => {
+  const id = E("S.bookings.find(b => b.br==='s62' && b.day===0 && b.start===840 && b.status==='booked').id");
+  click(`[data-act="k-st"][data-st="noshow"][data-id="${id}"]`);
+  eq(E("fits('s62',0,840,40)"), true, '14:00 ต้องว่างหลังลูกค้าไม่มา');
+});
+test('วันล่วงหน้าใช้ "จำนวนพนักงานมาตรฐาน" ไม่ใช่คนที่เช็กชื่อวันนี้', ({ E, change }) => {
+  change('[data-set="defaultCap"]', 1);
+  eq(E("fits('s62',1,660,40)"), false, 'พรุ่งนี้ 11:00 มี 2 คิวแล้ว ค่ามาตรฐาน 1 ต้องเต็ม');
+  change('[data-set="defaultCap"]', 3);
+  eq(E("fits('s62',1,660,40)"), true, 'ค่ามาตรฐาน 3 ต้องรับได้');
+  eq(E("cap('s62',0)"), 2, 'วันนี้ยังใช้คนที่เช็กชื่อ');
+});
+test('สาขาแยกกันเด็ดขาด (คิว/พนักงานสุขุมวิทไม่กระทบแฟชั่นไอซ์แลนด์)', ({ E, click }) => {
+  eq(E("fits('fi',0,840,40)"), true, 'แฟชั่นไอซ์แลนด์ 14:00 ต้องว่าง');
+  click('[data-act="k-staff"][data-id="1"]');
+  eq(E("cap('fi',0)"), 2, 'เช็กชื่อสุขุมวิทต้องไม่เปลี่ยนแฟชั่นไอซ์แลนด์');
+});
+
+/* ---- time slots ---- */
+test('ตัด slot ที่ทำไม่ทันก่อนร้านปิด (สุขุมวิทปิด 21:00)', ({ E }) => {
+  eq(E("fits('s62',2,1220,40)"), true, '20:20 + 40 นาที = 21:00 พอดี ต้องได้');
+  eq(E("fits('s62',2,1225,40)"), false, '20:25 + 40 = 21:05 ต้องไม่ได้');
+  eq(E("fits('s62',2,1200,60)"), true, 'เซ็ตลอน 60 นาที เริ่ม 20:00 ต้องได้');
+  eq(E("fits('s62',2,1205,60)"), false, 'เซ็ตลอน เริ่ม 20:05 ต้องไม่ได้');
+});
+test('เวลาเปิด-ปิดแยกตามสาขา (แฟชั่นไอซ์แลนด์ 09:00–20:00)', ({ E }) => {
+  eq(E("fits('fi',2,540,40)"), true, 'แฟชั่นไอซ์แลนด์ 09:00 ต้องได้');
+  eq(E("fits('s62',2,540,40)"), false, 'สุขุมวิท 09:00 ยังไม่เปิด');
+  eq(E("fits('fi',2,1160,40)"), true, '19:20–20:00 ต้องได้');
+  eq(E("fits('fi',2,1170,40)"), false, '19:30–20:10 เกินเวลาปิด');
+});
+test('หน้าจองปิดเวลาที่ผ่านไปแล้วของวันนี้ (ตอนนี้ 13:20)', ({ E, q }) => {
+  eq(E("slotOk('s62',0,780,40)"), false, '13:00 ผ่านไปแล้ว');
+  E("S.c.screen='book'; renderAll()");
+  ok(q('.slot[data-t="780"]').disabled, 'ปุ่ม 13:00 ต้องกดไม่ได้');
+});
+test('เวลาพักระหว่างคิว (Buffer) กันช่วงหลังคิวไว้', ({ E, change }) => {
+  E("S.bookings.push(mk('s62',2,600,'s1',[],'unassigned',null,'A'), mk('s62',2,600,'s1',[],'unassigned',null,'B'))");
+  eq(E("fits('s62',2,640,40)"), true, 'ไม่มี buffer: 10:40 ต้องได้');
+  change('[data-set="buffer"]', 10);
+  eq(E("fits('s62',2,640,40)"), false, 'buffer 10: 10:40 ต้องไม่ได้');
+  eq(E("fits('s62',2,650,40)"), true, 'buffer 10: 10:50 ต้องได้');
+});
+test('Walk-in: ระบบเสนอเวลาเริ่มเร็วที่สุดที่ไม่ทำให้คิวล้น (คาดว่า 14:40)', ({ E, click, q }) => {
+  click('[data-act="k-walkin"]');
+  eq(q('[data-act="w-ok"]').dataset.start, '880', 'เวลาเริ่มที่เสนอ');
+  click('[data-act="w-ok"]');
+  eq(E("S.bookings[S.bookings.length-1].start"), 880, 'คิว walk-in ต้องเริ่ม 14:40');
+});
+test('Walk-in: ถ้าเวลาเต็มระหว่างเปิดหน้าต่าง ต้องไม่สร้างคิวซ้อน', ({ E, click }) => {
+  click('[data-act="k-walkin"]');
+  E("S.bookings.push(mk('s62',0,880,'s1',[],'unassigned',null,'X'), mk('s62',0,880,'s1',[],'unassigned',null,'Y'))");
+  const n = E('S.bookings.length');
+  click('[data-act="w-ok"]');
+  eq(E('S.bookings.length'), n, 'ต้องไม่เพิ่มคิว');
+});
+
+/* ---- duration & price ---- */
+test('เวลารวม = บริการหลัก + Add-on (ทรีตเมนต์ 0, นวด 5, หนีบ/ลอน 20)', ({ E }) => {
+  eq(E("durOf('s1',['treat'])"), 40, 'สระไดร์+ทรีตเมนต์');
+  eq(E("durOf('s1',['massage'])"), 45, 'สระไดร์+นวด');
+  eq(E("durOf('s1',['straight','curl','treat','massage'])"), 85, 'ทุก add-on');
+  eq(E("durOf('s2',['curl'])"), 60, 'Cool Scalp Spa + เซ็ตลอน');
+});
+test('ราคา = บริการหลัก + Add-on ตามป้ายร้าน', ({ E }) => {
+  eq(E("priceOf('s1',['treat'])"), 200, 'สระไดร์+ทรีตเมนต์');
+  eq(E("priceOf('s1',['straight','curl','treat','massage'])"), 370, 'ทุก add-on');
+  eq(E("priceOf('s2',['curl'])"), 400, 'Cool Scalp Spa+เซ็ตลอน');
+  eq(E("priceOf('s1',['treat'],true)"), 50, 'ใช้แพ็กเกจ เหลือจ่ายแค่ add-on');
+});
+test('Cool Scalp Spa เลือกได้แค่หนีบตรง/เซ็ตลอน และใช้แพ็กเกจไม่ได้', ({ E, click, q }) => {
+  E("S.c.screen='book'; renderAll()");
+  click('[data-act="c-svc"][data-k="s2"]');
+  eq([...q('#custApp').querySelectorAll('[data-act="c-add"]')].map(e => e.dataset.k), ['straight', 'curl'], 'add-on ของ s2');
+  ok(q('[data-set="usePkg"]').disabled, 'ช่องใช้แพ็กเกจต้องกดไม่ได้');
+});
+test('ราคาและเวลาในคิวถูกล็อกตอนจอง (เปลี่ยนราคาทีหลังไม่กระทบย้อนหลัง)', ({ E, book }) => {
+  const b = book({ time: 1020, addons: ['treat'] });
+  ok(b, 'ต้องจองได้');
+  E("SV.s1.price = 999; AD.treat.min = 30");
+  const after = E(`find('${b.id}')`);
+  eq([after.price, after.dur], [200, 40], 'ราคา/เวลาในคิวเดิม');
+});
+
+/* ---- customer booking ---- */
+test('ลูกค้าจองผ่าน LINE: ได้คิว "รอระบุช่าง", ข้อความยืนยันเข้าแชท, iPad มีกระดิ่ง, มี log', ({ E, book, lastLog }) => {
+  const b = book({ time: 1020, addons: ['treat'] });
+  eq([b.status, b.src, b.price, b.dur, b.br], ['unassigned', 'line', 200, 40, 's62'], 'ข้อมูลคิว');
+  ok(E("S.c.msgs.some(m => m.html.includes('ยืนยันการจอง " + b.id + "'))"), 'ต้องมีข้อความยืนยันในแชท');
+  eq(E('S.unread'), 1, 'กระดิ่ง iPad');
+  eq(lastLog().act, 'จองคิว', 'log ล่าสุด');
+});
+test('เบอร์โทรไม่ถูกต้อง → กดยืนยันไม่ได้', ({ E, click, type, q }) => {
+  E("S.c.screen='book'; renderAll()");
+  click('.slot[data-t="1020"]');
+  type('[data-set="phone"]', '12345');
+  ok(q('[data-act="c-book"]').disabled, 'เบอร์ 5 หลักต้องจองไม่ได้');
+  type('[data-set="phone"]', '021234567');
+  ok(!q('[data-act="c-book"]').disabled, 'เบอร์บ้าน 9 หลักต้องจองได้');
+});
+test('คิวเต็มระหว่างลูกค้ากำลังกรอก → ระบบปฏิเสธ ไม่จองซ้อน', ({ E, click, type }) => {
+  E("S.c.screen='book'; renderAll()");
+  click('.slot[data-t="1020"]');
+  type('[data-set="phone"]', '0812345678');
+  E("S.bookings.push(mk('s62',0,1020,'s1',[],'unassigned',null,'X'), mk('s62',0,1020,'s1',[],'unassigned',null,'Y'))");
+  const n = E('S.bookings.length');
+  click('[data-act="c-book"]');
+  eq(E('S.bookings.length'), n, 'ต้องไม่มีคิวเพิ่ม');
+});
+test('ปิดรับจองชั่วคราว → ลูกค้าจองออนไลน์ไม่ได้', ({ E, change, q }) => {
+  change('[data-set="paused"]', true);
+  E("S.c.screen='book'; S.c.time=1020; S.c.phone='0812345678'; renderAll()");
+  ok(q('[data-act="c-book"]').disabled, 'ปุ่มจองต้องกดไม่ได้');
+  ok(!q('#custApp').querySelector('.slot'), 'ต้องไม่แสดงช่องเวลา');
+});
+test('ใช้แพ็กเกจ: ตัดสิทธิ์ 1 ครั้ง, ราคาเหลือเฉพาะ add-on', ({ E, book }) => {
+  const b = book({ time: 1020, pkg: true });
+  eq([b.price, b.pkg, E('S.c.pkgLeft')], [0, true, 6], 'ราคา/แพ็กเกจ/สิทธิ์ที่เหลือ');
+});
+test('ยกเลิกเองได้เฉพาะก่อนนัด ≥ 2 ชม. และคืนสิทธิ์แพ็กเกจ', ({ E, book, click, q }) => {
+  const near = book({ time: 900 });            // 15:00 = อีก 100 นาที
+  const far = book({ time: 1020, pkg: true });  // 17:00 = อีก 220 นาที
+  ok(near && far, 'ต้องจองได้ทั้ง 2 คิว');
+  E("S.c.screen='myq'; renderAll()");
+  ok(q(`[data-act="c-cancel"][data-id="${near.id}"]`).disabled, 'คิว 15:00 ต้องยกเลิกไม่ได้');
+  const left = E('S.c.pkgLeft');
+  click(`[data-act="c-cancel"][data-id="${far.id}"]`);
+  eq(E(`find('${far.id}').status`), 'cancelled', 'คิว 17:00 ต้องยกเลิกได้');
+  eq(E('S.c.pkgLeft'), left + 1, 'ต้องคืนสิทธิ์แพ็กเกจ');
+  eq(E("S.log[S.log.length-1].act"), 'ยกเลิกคิว', 'log');
+});
+
+/* ---- kiosk ---- */
+test('จ่ายงาน: ช่างที่ติดคิวช่วงเวลาซ้อนกันเลือกไม่ได้', ({ E, click, q }) => {
+  const id = E("S.bookings.find(b => b.br==='s62' && b.day===0 && b.start===840 && b.status==='unassigned').id");
+  click(`[data-act="k-assign"][data-id="${id}"]`);
+  ok(q('[data-act="m-pick"][data-id="1"]').disabled, 'เมย์ติดคิว 14:00 ต้องเลือกไม่ได้');
+  ok(!q('[data-act="m-pick"][data-id="2"]').disabled, 'ฝนว่าง ต้องเลือกได้');
+});
+test('จ่ายงานต้องใส่ PIN 4 หลัก และบันทึกชื่อช่างใน log', ({ E, click, type, q }) => {
+  const id = E("S.bookings.find(b => b.br==='s62' && b.day===0 && b.start===840 && b.status==='unassigned').id");
+  click(`[data-act="k-assign"][data-id="${id}"]`);
+  click('[data-act="m-pick"][data-id="2"]');
+  type('#pin', '12');
+  ok(q('[data-act="m-assign"]').disabled, 'PIN 2 หลักต้องกดยืนยันไม่ได้');
+  type('#pin', '1234');
+  click('[data-act="m-assign"]');
+  eq([E(`find('${id}').status`), E(`find('${id}').staff`)], ['booked', 2], 'สถานะ/ช่าง');
+  ok(E("S.log.some(l => l.act==='รับงาน' && l.who==='ฝน (PIN)')"), 'log ต้องมีชื่อช่าง');
+});
+test('คิวจากโทรศัพท์: ใช้ช่วงเวลาว่างชุดเดียวกัน และต้องมีเบอร์', ({ E, click, type, q }) => {
+  click('[data-act="k-phone"]');
+  const times = [...q('[data-pdsel="time"]').options].map(o => +o.value);
+  ok(!times.includes(840), 'ต้องไม่เสนอ 14:00 ที่เต็มแล้ว');
+  type('[data-pd="name"]', 'คุณทดสอบ');
+  type('[data-pd="phone"]', '08');
+  ok(q('[data-act="pd-ok"]').disabled, 'เบอร์ไม่ครบต้องบันทึกไม่ได้');
+  type('[data-pd="phone"]', '0899999999');
+  click('[data-act="pd-ok"]');
+  const b = E('S.bookings[S.bookings.length-1]');
+  eq([b.src, b.name, b.status], ['phone', 'คุณทดสอบ', 'unassigned'], 'คิวโทร');
+});
+
+/* ---- payment ---- */
+test('รับเงินสด → ปิดคิว "เสร็จสิ้น" พร้อมบันทึกยอด', ({ E, click }) => {
+  const id = E("S.bookings.find(b => b.br==='s62' && b.status==='inprog').id");
+  click(`[data-act="k-pay"][data-id="${id}"]`);
+  click('[data-act="p-method"][data-m="cash"]');
+  const b = E(`find('${id}')`);
+  eq([b.status, b.pay.method, b.pay.amount], ['done', 'cash', b.price], 'สถานะ/วิธีจ่าย/ยอด');
+  ok(E("S.log.some(l => l.act==='รับเงินสด' && l.detail.includes('" + id + "'))"), 'log รับเงินสด');
+});
+test('โอน + ลูกค้าส่งสลิปใน LINE → ตรวจผ่าน ปิดคิวอัตโนมัติ', ({ E, book, assign, click }) => {
+  const b = book({ time: 1020 });
+  assign(b.id, 2);
+  click(`[data-act="k-st"][data-st="inprog"][data-id="${b.id}"]`);
+  click(`[data-act="k-pay"][data-id="${b.id}"]`);
+  click('[data-act="p-method"][data-m="transfer"]');
+  eq(E(`find('${b.id}').status`), 'awaitpay', 'ต้องรอสลิป');
+  E("S.c.screen='chat'; renderAll()");
+  click(`[data-act="c-slip"][data-id="${b.id}"]`);
+  const a = E(`find('${b.id}')`);
+  eq([a.status, a.pay.method, a.pay.amount], ['done', 'transfer', 150], 'หลังตรวจสลิป');
+  ok(a.pay.ref, 'ต้องมีเลขอ้างอิงสลิป');
+  ok(E("S.c.msgs.some(m => m.html.includes('ได้รับชำระเงินแล้ว'))"), 'ต้องตอบกลับลูกค้าในแชท');
+});
+test('สลิปใช้ซ้ำ / ยอดไม่ตรง → ไม่ปิดคิว, ไม่บันทึกยอด, log แดง', ({ E, click }) => {
+  E("S.kBr='fi'; renderAll()");
+  const id = E("S.bookings.find(b => b.status==='awaitpay').id");
+  for (const r of ['dup', 'amount']) {
+    click(`[data-act="k-scan"][data-id="${id}"]`);
+    click(`[data-act="s-res"][data-r="${r}"]`);
+    eq([E(`find('${id}').status`), E(`find('${id}').pay`)], ['awaitpay', null], 'สลิป ' + r);
+    ok(E("S.log[S.log.length-1].bad === true"), 'log ต้องเป็นแถวแดง (' + r + ')');
+  }
+  click(`[data-act="k-scan"][data-id="${id}"]`);
+  click('[data-act="s-res"][data-r="ok"]');
+  eq(E(`find('${id}').status`), 'done', 'สลิปถูกต้องต้องปิดคิว');
+});
+test('รอสลิปแล้วลูกค้าเปลี่ยนใจจ่ายเงินสด → ปิดคิวเป็นเงินสด', ({ E, click }) => {
+  E("S.kBr='fi'; renderAll()");
+  const id = E("S.bookings.find(b => b.status==='awaitpay').id");
+  click(`[data-act="k-cash"][data-id="${id}"]`);
+  eq([E(`find('${id}').status`), E(`find('${id}').pay.method`)], ['done', 'cash'], 'สถานะ/วิธีจ่าย');
+});
+test('ใช้แพ็กเกจและไม่มี add-on → ไม่มียอด, ปิดคิวเป็น "แพ็กเกจ"', ({ E, book, assign, click, q }) => {
+  const b = book({ time: 1020, pkg: true });
+  assign(b.id, 2);
+  click(`[data-act="k-st"][data-st="inprog"][data-id="${b.id}"]`);
+  click(`[data-act="k-pay"][data-id="${b.id}"]`);
+  ok(!q('#sheet').querySelector('[data-m="cash"]'), 'ต้องไม่ถามเงินสด/โอน');
+  click('[data-act="p-method"][data-m="package"]');
+  eq([E(`find('${b.id}').status`), E(`find('${b.id}').pay.method`), E(`find('${b.id}').pay.amount`)], ['done', 'package', 0], 'ปิดคิวแพ็กเกจ');
+});
+
+/* ---- reports & log ---- */
+test('รายงาน: ยอดรับเงิน = เฉพาะคิวที่จ่ายแล้ว, เงินสด + โอน = ยอดรวม, รวมรายช่างตรงกัน', ({ E, q }) => {
+  const paid = E("S.bookings.filter(b => b.day===0 && b.pay)");
+  const cash = paid.filter(b => b.pay.method === 'cash').reduce((a, b) => a + b.pay.amount, 0);
+  const tr = paid.filter(b => b.pay.method === 'transfer').reduce((a, b) => a + b.pay.amount, 0);
+  const kp = [...q('#ownerApp').querySelectorAll('.kpi .v')].map(e => e.textContent);
+  eq(kp[0], E(`baht(${cash + tr})`), 'การ์ดรับเงินแล้ว');
+  eq(kp[1], E(`baht(${cash}) + ' / ' + baht(${tr})`), 'การ์ดเงินสด/โอน');
+  ok(E("S.bookings.some(b => b.day===0 && !b.pay && b.status==='awaitpay')"), 'ต้องมีคิวรอสลิปที่ยังไม่นับเป็นรายได้');
+  const perStaff = E("S.staff.reduce((a,s) => a + S.bookings.filter(b => b.day===0 && b.pay && b.staff===s.id).reduce((x,b)=>x+b.pay.amount,0), 0)");
+  eq(perStaff, cash + tr, 'ยอดรวมรายช่าง');
+});
+test('รายงานกรองตามสาขาได้', ({ E, click, q }) => {
+  click('[data-act="o-br"][data-k="fi"]');
+  const fi = E("S.bookings.filter(b => b.br==='fi' && b.day===0 && b.pay).reduce((a,b)=>a+b.pay.amount,0)");
+  eq(q('#ownerApp .kpi .v').textContent, E(`baht(${fi})`), 'ยอดแฟชั่นไอซ์แลนด์');
+});
+test('Log บันทึกทุกการกระทำ (จอง, เช็กชื่อ, จ่ายงาน, เปลี่ยนสถานะ, รับเงิน, ตั้งค่า, ยกเลิก)', ({ E, book, assign, click, change }) => {
+  const b = book({ time: 1020 });
+  click('[data-act="k-staff"][data-id="3"]');
+  assign(b.id, 3);
+  click(`[data-act="k-st"][data-st="inprog"][data-id="${b.id}"]`);
+  click(`[data-act="k-pay"][data-id="${b.id}"]`);
+  click('[data-act="p-method"][data-m="cash"]');
+  change('[data-set="buffer"]', 5);
+  const c2 = book({ time: 1140 });
+  E("S.c.screen='myq'; renderAll()");
+  click(`[data-act="c-cancel"][data-id="${c2.id}"]`);
+  const a = E('S.log.map(l => l.act)');
+  for (const want of ['จองคิว', 'เช็กชื่อเข้าเวร', 'รับงาน', 'เปลี่ยนสถานะ', 'รับเงินสด', 'แก้ตั้งค่า', 'ยกเลิกคิว'])
+    ok(a.includes(want), 'log ต้องมี "' + want + '"');
+  ok(E('S.log.every(l => l.at && l.who && l.act && l.br)'), 'ทุกแถวต้องมีเวลา/ผู้ทำ/รายการ/สาขา');
+});
+
+(async () => {
+  const tb = document.getElementById('t');
+  let pass = 0;
+  for (const [i, t] of T.entries()) {
+    const f = await fresh();
+    let err = null;
+    try { await t.fn(kit(f.contentWindow)); } catch (e) { err = e; }
+    f.remove();
+    if (!err) pass++;
+    tb.insertAdjacentHTML('beforeend', `<tr><td>${i + 1}</td><td>${t.name}</td><td class="${err ? 'f' : 'p'}">${err ? '✗ ' + String(err.message).replace(/</g, '&lt;') : '✓ ผ่าน'}</td></tr>`);
+  }
+  const s = document.getElementById('sum');
+  s.textContent = `ผ่าน ${pass} / ${T.length}`;
+  s.className = pass === T.length ? 'p' : 'f';
+  window.RESULT = { pass, total: T.length };
+})();
+</script>
+</body>
+</html>

@@ -14,7 +14,7 @@ body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#F6F3ED 0%,var(--bg)
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
 .num{font-family:var(--serif);font-variant-numeric:lining-nums;font-weight:700}
-.nav{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:10px 16px;background:#F8F5EFF2;border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.nav{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:10px 16px;background:#F8F5EFF2;border-bottom:1px solid var(--line);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .brand .logo{font:600 24px/1 var(--caps);letter-spacing:.14em}
 .brand small{font:400 12.5px "IBM Plex Sans Thai",sans-serif;color:var(--muted)}
@@ -47,7 +47,7 @@ h3{font-size:15px}
 .bigbtns button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:14px 8px;font-weight:600}
 .bigbtns button span{display:block;font-size:26px}
 /* phone */
-.phone{position:relative;flex:0 0 auto;width:min(409px,100%,calc((100vh - 100px) * 409 / 868));aspect-ratio:409/868;background:#1C1C1E;border-radius:62px;padding:8px;box-shadow:0 0 0 2px #9C978C,0 24px 60px #3a372e45;display:flex;flex-direction:column;min-width:0}
+.phone{position:relative;flex:0 0 auto;width:409px;max-width:none;aspect-ratio:409/868;background:#1C1C1E;border-radius:62px;padding:8px;box-shadow:0 0 0 2px #9C978C,0 24px 60px #3a372e45;display:flex;flex-direction:column;min-width:0}
 .scr{position:relative;flex:1;min-height:0;border-radius:54px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column}
 .sbar{flex:none;height:50px;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 40px;font:600 15px -apple-system,"SF Pro Text","Segoe UI",system-ui,sans-serif;background:#F8F5EF;color:#111}
 .sbar svg{height:12px;margin-left:5px;vertical-align:middle}
@@ -122,12 +122,12 @@ h3{font-size:15px}
 .rm.hint{outline:2px dashed var(--gold);outline-offset:-4px}
 .lc-foot{background:#1F1F1F;color:#ddd;text-align:center;padding:6px;font-size:13px}
 /* tablet */
-.tablet{position:relative;width:min(1180px,100%,calc((100vh - 100px) * 1376 / 1032));aspect-ratio:1376/1032;background:#1C1C1E;border-radius:42px;padding:18px;box-shadow:0 0 0 2px #9C978C,0 24px 60px #3a372e45;display:flex}
+.tablet{position:relative;width:1180px;max-width:none;aspect-ratio:1376/1032;background:#1C1C1E;border-radius:42px;padding:18px;box-shadow:0 0 0 2px #9C978C,0 24px 60px #3a372e45;display:flex}
 .tablet .cam{position:absolute;top:7px;left:50%;width:6px;height:6px;border-radius:50%;background:#3A3A3C;transform:translateX(-50%)}
 #kioskApp{flex:1;min-width:0;min-height:0;border-radius:24px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column}
 #kioskApp>.k-top{flex:none}
 #kioskApp>.k-grid{flex:1;min-height:0;overflow-y:auto;align-content:start}
-@media(max-width:860px){.tablet{aspect-ratio:auto;padding:10px;border-radius:26px}#kioskApp{border-radius:16px}#kioskApp>.k-grid{overflow:visible}}
+@media(max-width:860px){.tablet{width:100%;max-width:100%;aspect-ratio:auto;padding:10px;border-radius:26px}#kioskApp{border-radius:16px}#kioskApp>.k-grid{overflow:visible}}
 .k-top{display:flex;align-items:center;gap:10px 12px;padding:10px 16px;background:#F4EEE4;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .k-top .logo{font:600 20px var(--caps);letter-spacing:.14em}
 .k-top select{border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:#fff;min-width:0}
@@ -177,7 +177,7 @@ tr.bad td{background:#F9E6E3}
 .toast{position:fixed;right:16px;bottom:16px;z-index:30;background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;max-width:min(360px,calc(100vw - 32px));box-shadow:0 8px 24px #0004}
 .toast.bad{background:var(--bad)}
 .toast[hidden]{display:none}
-@media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.phone{width:100%;aspect-ratio:auto;padding:0;border-radius:18px;background:none;box-shadow:none}.scr{border-radius:18px;border:1px solid var(--line)}.sbar,.island,.homebar{display:none}#custApp{overflow:visible}#custApp>.lc-body{min-height:340px}#custApp>.lc-foot{padding-bottom:6px}.sum b{font-size:18px}.k-top{padding:10px}}
+@media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.phone{width:100%;max-width:100%;aspect-ratio:auto;padding:0;border-radius:18px;background:none;box-shadow:none}.scr{border-radius:18px;border:1px solid var(--line)}.sbar,.island,.homebar{display:none}#custApp{overflow:visible}#custApp>.lc-body{min-height:340px}#custApp>.lc-foot{padding-bottom:6px}.sum b{font-size:18px}.k-top{padding:10px}}
 </style>
 </head>
 <body>
@@ -552,6 +552,13 @@ function renderOwner() {
 }
 
 /* ---------- wiring ---------- */
+// shrink the device frames as a whole (true iPhone 16 Pro / iPad Pro 13 proportions) so they fit short laptop screens
+function fitDevices() {
+  const w = innerWidth, h = innerHeight;
+  $('.phone').style.zoom = w > 480 ? Math.min(1, (h - 96) / 868, (w - 32) / 409) : '';
+  $('.tablet').style.zoom = w > 860 ? Math.min(1, (h - 96) / 885, (w - 32) / 1180) : '';
+}
+addEventListener('resize', fitDevices);
 function renderAll() { renderCust(); renderKiosk(); renderOwner(); }
 function toast(msg, bad = false) { const t = $('#toast'); t.innerHTML = msg; t.className = 'toast' + (bad ? ' bad' : ''); t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3800); }
 const find = id => S.bookings.find(b => b.id === id);
@@ -611,6 +618,8 @@ document.addEventListener('click', e => {
   else if (a === 'w-svc') { openWalkin(el.dataset.k, []); return; }
   else if (a === 'w-add') { const cur = [...document.querySelectorAll('[data-act="w-add"]:checked')].map(x => x.dataset.k); openWalkin(document.querySelector('[data-act="w-svc"]:checked').dataset.k, cur); return; }
   else if (a === 'w-ok') {
+    const wAdd = el.dataset.addons ? el.dataset.addons.split(',') : [];
+    if (!fits(S.kBr, 0, +el.dataset.start, durOf(el.dataset.svc, wAdd))) { toast('ช่วงเวลานี้เพิ่งเต็ม กรุณาเลือกใหม่', true); openWalkin(el.dataset.svc, wAdd); return; }
     const b = mk(S.kBr, 0, +el.dataset.start, el.dataset.svc, el.dataset.addons ? el.dataset.addons.split(',') : [], 'unassigned', null, 'Walk-in', 'walk');
     S.bookings.push(b); logEv(stamp(), b.br, kioskWho(b.br), 'สร้างคิว Walk-in', `${b.id} ${fmt(b.start)} · ${svcLine(b)} · ${baht(b.price)}`);
     renderAll(); openAssign(b.id); return;
@@ -677,6 +686,7 @@ console.assert(!fits('s62', 0, 1230, 40), '20:30 + 40 min runs past 21:00');
 console.assert(fits('s62', 0, 1200, 40), '20:00 should be free');
 console.assert(!fits('fi', 0, 1170, 40), 'Fashion Island closes at 20:00');
 console.assert(fits('fi', 1, 540, 40), 'Fashion Island opens 09:00');
+fitDevices();
 renderAll();
 </script>
 </body>
