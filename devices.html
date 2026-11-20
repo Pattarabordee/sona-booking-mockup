@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>sōna Device Check</title>
+<style>
+:root{--bg:#ECE7DE;--paper:#F8F5EF;--ink:#2F2E26;--muted:#6E6A5E;--line:#D9D0C2;--ok:#4C6B3C;--bad:#A3412F}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,"IBM Plex Sans Thai",sans-serif;padding:16px}
+h1{font-size:20px;margin:0 0 4px}
+.sum{margin:0 0 12px;color:var(--muted)}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;background:var(--paper);border:1px solid var(--line);font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#E4DDD0}
+td.r{white-space:nowrap}
+.mu{color:var(--muted)}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+.g td{background:#E9E2D5;font-weight:700}
+#stage{position:absolute;left:-30000px;top:0}
+#stage iframe{border:0;display:block;margin-bottom:8px;background:#fff}
+</style>
+</head>
+<body>
+<h1>sōna · device check</h1>
+<p class="sum" id="sum">ยังไม่เริ่ม · ทดสอบทีละกลุ่มเพื่อไม่ให้เครื่องหนัก
+  <span id="pick"></span></p>
+<div class="wrap"><table><thead><tr><th>รุ่น</th><th>พื้นที่ที่เบราว์เซอร์ให้</th><th>ลองกดเอง</th><th>เดโม</th><th>ตัวอักษรเล็กสุด</th><th>รายละเอียด</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div id="stage"></div>
+<script>
+// size = the area the browser gives the page (screen minus status bar, address bar, toolbar, taskbar), in CSS px.
+// Models released or sold Nov 2021 – Nov 2026; models that share a size share a row.
+const DEVICES = [
+  ['iPhone (Safari)', [
+    ['iPhone SE (3rd gen)', 375, 548, 'แนวตั้ง'],
+    ['iPhone 13 mini', 375, 629, 'แนวตั้ง'],
+    ['iPhone 13 / 13 Pro / 14 / 16e', 390, 664, 'แนวตั้ง'],
+    ['iPhone 13 / 14 / 16e', 390, 763, 'แนวตั้ง · แถบ Safari หด'],
+    ['iPhone 13 Pro Max / 14 Plus', 428, 746, 'แนวตั้ง'],
+    ['iPhone 14 Pro / 15 / 15 Pro / 16', 393, 659, 'แนวตั้ง'],
+    ['iPhone 14 Pro Max / 15 Plus / 15 Pro Max / 16 Plus', 430, 739, 'แนวตั้ง'],
+    ['iPhone 16 Pro / 17 / 17 Pro', 402, 681, 'แนวตั้ง'],
+    ['iPhone Air', 420, 719, 'แนวตั้ง'],
+    ['iPhone 16 Pro Max / 17 Pro Max', 440, 763, 'แนวตั้ง'],
+    ['iPhone SE (3rd gen)', 667, 325, 'แนวนอน'],
+    ['iPhone 13 / 14 / 16e', 750, 340, 'แนวนอน'],
+    ['iPhone 16 Pro / 17 Pro', 778, 352, 'แนวนอน'],
+    ['iPhone 16 Pro Max / 17 Pro Max', 852, 390, 'แนวนอน'],
+  ]],
+  ['Android โทรศัพท์ (Chrome / Samsung Internet)', [
+    ['Galaxy A0x / A1x, Redmi รุ่นเริ่มต้น', 360, 672, 'แนวตั้ง'],
+    ['Galaxy S22 / S23', 360, 664, 'แนวตั้ง'],
+    ['Galaxy S24 / S25, S22–S25 Ultra', 384, 720, 'แนวตั้ง'],
+    ['Galaxy S22+ / S23+ / S24+', 384, 742, 'แนวตั้ง'],
+    ['Galaxy A3x / A5x, Pixel 6–10', 412, 803, 'แนวตั้ง'],
+    ['Pixel 6a / 7a / 8a / 9a', 412, 780, 'แนวตั้ง'],
+    ['Xiaomi / Redmi Note / OPPO / vivo', 393, 761, 'แนวตั้ง'],
+    ['Galaxy Z Flip 3–7', 412, 894, 'แนวตั้ง'],
+    ['Galaxy Z Fold 3–5 จอนอก', 344, 770, 'แนวตั้ง · แคบสุด'],
+    ['Galaxy Z Fold 3–7 จอใน', 673, 729, 'กางจอ'],
+    ['Android ทั่วไป', 803, 360, 'แนวนอน'],
+    ['Galaxy A รุ่นเริ่มต้น', 672, 312, 'แนวนอน'],
+  ]],
+  ['iPad (Safari)', [
+    ['iPad mini 6 / 7', 744, 1059, 'แนวตั้ง'],
+    ['iPad mini 6 / 7', 1133, 670, 'แนวนอน'],
+    ['iPad (9th gen)', 810, 1006, 'แนวตั้ง'],
+    ['iPad (9th gen)', 1080, 736, 'แนวนอน'],
+    ['iPad (10th gen) / iPad A16 / Air 11"', 820, 1106, 'แนวตั้ง'],
+    ['iPad (10th gen) / iPad A16 / Air 11"', 1180, 746, 'แนวนอน'],
+    ['iPad Pro 11" (2021–2022)', 834, 1120, 'แนวตั้ง'],
+    ['iPad Pro 11" (M4 / M5)', 834, 1136, 'แนวตั้ง'],
+    ['iPad Pro 11"', 1210, 760, 'แนวนอน'],
+    ['iPad Pro 12.9" / Air 13"', 1024, 1292, 'แนวตั้ง'],
+    ['iPad Pro 12.9" / Air 13"', 1366, 950, 'แนวนอน'],
+    ['iPad Pro 13" (M4 / M5)', 1376, 958, 'แนวนอน'],
+    ['iPad แบ่งจอ (Split View)', 590, 746, 'ครึ่งจอ'],
+  ]],
+  ['Android แท็บเล็ต', [
+    ['Galaxy Tab A8 / A9+ / S7–S10 FE', 800, 1168, 'แนวตั้ง'],
+    ['Galaxy Tab A8 / S7–S10', 1280, 688, 'แนวนอน'],
+    ['Galaxy Tab S8–S10 Ultra', 1478, 812, 'แนวนอน'],
+  ]],
+  ['Mac (Safari / Chrome)', [
+    ['MacBook Air 13" (M1)', 1440, 789, 'ค่าเริ่มต้น'],
+    ['MacBook Air 13" (M2 / M3 / M4)', 1470, 832, 'ค่าเริ่มต้น'],
+    ['MacBook Air 13"', 1280, 708, 'ตั้ง Larger Text'],
+    ['MacBook Air 15"', 1710, 988, 'ค่าเริ่มต้น'],
+    ['MacBook Pro 14"', 1512, 858, 'ค่าเริ่มต้น'],
+    ['MacBook Pro 16"', 1728, 993, 'ค่าเริ่มต้น'],
+    ['iMac 24"', 2240, 1136, 'ค่าเริ่มต้น'],
+    ['Studio Display / จอ 27" 1440p', 2560, 1316, 'ค่าเริ่มต้น'],
+  ]],
+  ['Windows (Chrome / Edge)', [
+    ['โน้ตบุ๊ก 1366×768', 1366, 635, 'สเกล 100%'],
+    ['จอ 1600×900', 1600, 767, 'สเกล 100%'],
+    ['Full HD 1920×1080', 1920, 947, 'สเกล 100%'],
+    ['Full HD 1920×1080', 1536, 730, 'สเกล 125%'],
+    ['Full HD 1920×1080', 1280, 587, 'สเกล 150%'],
+    ['1920×1200', 1280, 667, 'สเกล 150%'],
+    ['2560×1600', 1707, 933, 'สเกล 150%'],
+    ['2880×1800 / Surface', 1440, 767, 'สเกล 200%'],
+    ['2560×1440', 2560, 1307, 'สเกล 100%'],
+    ['4K 3840×2160', 1920, 947, 'สเกล 200%'],
+    ['หน้าต่างครึ่งจอ (Snap)', 960, 947, 'Full HD แบ่งครึ่ง'],
+  ]],
+];
+
+const MIN_TEXT = 10; // smallest text allowed on screen, CSS px after the device frame is scaled
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function load(w, h) {
+  return new Promise(res => {
+    const f = document.createElement('iframe');
+    f.width = w; f.height = h; f.src = 'index.html?try&dev=' + Date.now();
+    f.onload = () => res(f);
+    document.getElementById('stage').appendChild(f);
+  });
+}
+
+async function prep(f) {
+  const d = f.contentDocument, st = d.createElement('style');
+  st.textContent = '*{transition:none!important;animation:none!important}';
+  d.head.appendChild(st);
+  await d.fonts.ready;
+}
+
+function scaleOf(win, sel) {
+  const el = win.document.querySelector(sel);
+  return el && el.offsetWidth ? el.getBoundingClientRect().width / el.offsetWidth : 1;
+}
+
+// page wider than the screen, text cut off sideways by a clipping box, and the smallest text on screen
+function inspect(win, root, label) {
+  const d = win.document, out = [], vw = d.documentElement.clientWidth;
+  if (d.documentElement.scrollWidth > vw + 1) out.push(`${label}: หน้าล้นออกด้านข้าง ${d.documentElement.scrollWidth - vw}px`);
+  let minFont = 99, minAt = '';
+  for (const el of root.querySelectorAll('*')) {
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height) continue;
+    const cs = win.getComputedStyle(el);
+    if (cs.visibility === 'hidden' || !(el.offsetWidth || el.offsetHeight)) continue;
+    const text = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+    if (!text) continue;
+    const fs = parseFloat(cs.fontSize) * (el.offsetHeight ? r.height / el.offsetHeight : 1);
+    if (fs < minFont) { minFont = fs; minAt = `${label} "${el.textContent.trim().slice(0, 20)}"`; }
+    for (let p = el.parentElement; p && p !== d.body; p = p.parentElement) {
+      const ox = win.getComputedStyle(p).overflowX;
+      if (ox === 'auto' || ox === 'scroll') break; // rows meant to be swiped sideways
+      if (ox === 'hidden' || ox === 'clip') {
+        const pr = p.getBoundingClientRect();
+        if ((r.right > pr.right + 2 || r.left < pr.left - 2) && cs.textOverflow !== 'ellipsis') out.push(`${label}: ข้อความถูกตัด "${el.textContent.trim().slice(0, 20)}"`);
+        break;
+      }
+    }
+  }
+  return { out, minFont, minAt };
+}
+
+async function handsOn(w, h) {
+  const f = await load(w, h); await prep(f);
+  const win = f.contentWindow, d = win.document, issues = [];
+  let minFont = 99, minAt = '';
+  const take = r => { issues.push(...r.out); if (r.minFont < minFont) { minFont = r.minFont; minAt = r.minAt; } };
+  const click = async sel => { d.querySelector(sel)?.click(); await sleep(60); };
+  await click('[data-v="cust"]'); take(inspect(win, d.getElementById('cust'), 'ลูกค้า·แชท'));
+  await click('[data-act="c-open"]'); take(inspect(win, d.getElementById('cust'), 'ลูกค้า·จองคิว'));
+  const phoneK = scaleOf(win, '.phone');
+  await click('[data-act="c-myq"]'); take(inspect(win, d.getElementById('cust'), 'ลูกค้า·คิวของฉัน'));
+  await click('[data-v="kiosk"]'); take(inspect(win, d.getElementById('kiosk'), 'iPad'));
+  const tabK = scaleOf(win, '.tablet');
+  await click('[data-v="owner"]'); take(inspect(win, d.getElementById('owner'), 'เจ้าของร้าน'));
+  await click('[data-v="kiosk"]');
+  const id = win.eval("S").bookings[0].id;
+  for (const [name, open] of [['จ่ายงาน', () => win.openAssign(id)], ['Walk-in', () => win.openWalkin()], ['คิวโทรศัพท์', () => d.querySelector('[data-act="k-phone"]').click()], ['รับเงิน', () => win.openPay(id)], ['สแกนสลิป', () => win.openScan(id)]]) {
+    open(); await sleep(60);
+    const s = d.getElementById('sheet').getBoundingClientRect();
+    if (s.left < 0 || s.right > d.documentElement.clientWidth + 1 || s.top < 0 || s.bottom > win.innerHeight + 1) issues.push(`หน้าต่าง${name}: ล้นจอ`);
+    take(inspect(win, d.getElementById('sheet'), 'หน้าต่าง' + name));
+    d.querySelector('[data-act="m-close"]')?.click(); await sleep(30);
+  }
+  f.remove();
+  return { issues: [...new Set(issues)], minFont, minAt, phoneK, tabK };
+}
+
+// run the whole guided demo at 10x speed; at every step the highlighted target must be on screen and readable
+async function demo(w, h) {
+  const f = await load(w, h); await prep(f);
+  const win = f.contentWindow, d = win.document, fails = [];
+  const T = win.setTimeout.bind(win);
+  win.setTimeout = (fn, ms, ...a) => T(fn, (ms || 0) / 10, ...a);
+  let last = -1, seen = 0;
+  const mon = setInterval(() => {
+    if (win.eval("D").on) win.eval("D").skip = true;
+    const sp = d.getElementById('dSpot'); if (!sp || sp.dataset.step === undefined) return;
+    const s = +sp.dataset.step; if (s === last) return; last = s; seen++;
+    const step = win.eval("DEMO")[s], tg = win.eval("el$")(step.t);
+    if (!tg) { fails.push(`ขั้น ${s + 1}: หาเป้าหมายไม่เจอ`); return; }
+    const r = tg.getBoundingClientRect(), cap = d.getElementById('dCap').getBoundingClientRect(), bad = [];
+    if (r.top < 0) bad.push('อยู่เหนือจอ');
+    if (r.top + Math.min(r.height, 40) > cap.top) bad.push('ถูกกล่องคำอธิบายบัง');
+    if (r.left < -2 || r.left > win.innerWidth - 10) bad.push('อยู่นอกจอด้านข้าง');
+    for (let p = tg.parentElement; p && p !== d.body; p = p.parentElement) {
+      if (/(auto|scroll|hidden)/.test(win.getComputedStyle(p).overflowY) && p.scrollHeight > p.clientHeight + 2) {
+        const pr = p.getBoundingClientRect();
+        if (r.top < pr.top - 2 || r.top + Math.min(r.height, 30) > pr.bottom + 2) { bad.push('ซ่อนอยู่ในกรอบเลื่อน'); break; }
+      }
+    }
+    if (cap.top < win.innerHeight * 0.25) bad.push('กล่องคำอธิบายกินจอเกิน');
+    if (bad.length) fails.push(`ขั้น ${s + 1} ${step.title}: ${bad.join(', ')}`);
+  }, 5);
+  win.dRun();
+  if (h <= 500 && w > h && w <= 960) { // sideways phone: the demo must ask to turn upright and wait
+    await sleep(500);
+    const rot = d.getElementById('dRotate'), shown = rot && win.getComputedStyle(rot).display !== 'none';
+    const waiting = win.eval('D.i') === 0 && d.getElementById('dSpot').dataset.step === undefined;
+    clearInterval(mon); f.remove();
+    return { fails: shown && waiting ? [] : ['แนวนอน: ไม่ขึ้นหน้าบอกให้หมุนจอ'], seen: 26, rotate: true };
+  }
+  const t0 = Date.now(), done = () => /จบเดโม/.test(d.getElementById('dCap')?.textContent || '');
+  while (!done() && Date.now() - t0 < 60000) await sleep(50);
+  clearInterval(mon);
+  if (!done()) fails.push(`เดโมไม่จบ (ค้างที่ขั้น ${last + 1})`);
+  if (d.documentElement.scrollWidth > d.documentElement.clientWidth + 1) fails.push('หน้าล้นออกด้านข้างระหว่างเดโม');
+  f.remove();
+  return { fails, seen };
+}
+
+function render(name, w, h, note, ho, dm) {
+  const small = ho.minFont < MIN_TEXT;
+  const okHands = !ho.issues.length && !small, okDemo = !dm.fails.length && dm.seen === 26;
+  const det = [...ho.issues, ...dm.fails];
+  if (small) det.push(`ตัวอักษรเล็กเกินอ่าน: ${ho.minAt}`);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${name}</td><td class="r">${w}×${h}<br><span class="mu">${note}</span></td>
+    <td class="${okHands ? 'ok' : 'bad'}">${okHands ? 'ผ่าน' : 'ไม่ผ่าน'}</td>
+    <td class="r ${okDemo ? 'ok' : 'bad'}">${okDemo ? 'ผ่าน' : 'ไม่ผ่าน'} ${dm.rotate ? '· ขึ้นให้หมุนจอ' : dm.seen + '/26'}</td>
+    <td class="r ${small ? 'bad' : ''}">${ho.minFont.toFixed(1)}px<br><span class="mu">กรอบมือถือ ${Math.round(ho.phoneK * 100)}% · iPad ${Math.round(ho.tabK * 100)}%</span></td>
+    <td>${det.length ? det.join('<br>') : '—'}</td>`;
+  document.getElementById('rows').appendChild(tr);
+  return okHands && okDemo;
+}
+
+// never start on open: each run loads up to 73 full-size copies of the mockup, which is heavy.
+// ?g=N&run starts group N; the buttons do the same.
+const Q = new URLSearchParams(location.search);
+document.getElementById('pick').innerHTML = DEVICES.map((g, i) => `<button type="button" onclick="location.search='?g=${i}&run'">${g[0].split(' (')[0]}</button>`).join(' ');
+if (Q.has('run')) (async () => {
+  const only = Q.get('g');
+  const groups = only === null ? DEVICES : [DEVICES[+only]];
+  const total = groups.reduce((a, g) => a + g[1].length, 0), report = [];
+  let n = 0, pass = 0;
+  for (const [group, list] of groups) {
+    const g = document.createElement('tr'); g.className = 'g'; g.innerHTML = `<td colspan="6">${group}</td>`;
+    document.getElementById('rows').appendChild(g);
+    for (const [name, w, h, note] of list) {
+      let ho, dm;
+      try { ho = await handsOn(w, h); } catch (e) { ho = { issues: ['ลองกดเอง: สคริปต์ผิดพลาด ' + e.message], minFont: 99, minAt: '', phoneK: 1, tabK: 1 }; }
+      try { dm = await demo(w, h); } catch (e) { dm = { fails: ['เดโม: สคริปต์ผิดพลาด ' + e.message], seen: 0 }; }
+      document.querySelectorAll('#stage iframe').forEach(f => f.remove());
+      const ok = render(name, w, h, note, ho, dm);
+      n++; if (ok) pass++;
+      if (!ok) report.push({ dev: `${name} ${w}x${h} ${note}`, hands: ho.issues, font: +ho.minFont.toFixed(1), fontAt: ho.minAt, scale: [+ho.phoneK.toFixed(2), +ho.tabK.toFixed(2)], demo: dm.fails, seen: dm.seen });
+      document.getElementById('sum').textContent = `ทดสอบแล้ว ${n} / ${total} · ผ่าน ${pass} · ไม่ผ่าน ${n - pass}`;
+    }
+  }
+  document.getElementById('sum').textContent = pass === total ? `ผ่านครบทั้ง ${total} ขนาดจอ` : `ผ่าน ${pass} / ${total} ขนาดจอ · ไม่ผ่าน ${total - pass}`;
+  window.__done = { pass, total, report };
+})();
+</script>
+</body>
+</html>

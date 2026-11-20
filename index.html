@@ -127,7 +127,8 @@ h3{font-size:15px}
 #kioskApp{flex:1;min-width:0;min-height:0;border-radius:24px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column}
 #kioskApp>.k-top{flex:none}
 #kioskApp>.k-grid{flex:1;min-height:0;overflow-y:auto;align-content:start}
-@media(max-width:860px){.tablet{width:100%;max-width:100%;aspect-ratio:auto;padding:10px;border-radius:26px}#kioskApp{border-radius:16px}#kioskApp>.k-grid{overflow:visible}}
+@media(max-width:860px),(max-height:500px) and (orientation:landscape) and (max-width:960px){.tablet{width:100%;max-width:100%;aspect-ratio:auto;padding:10px;border-radius:26px}#kioskApp{border-radius:16px}#kioskApp>.k-grid{overflow:visible}}
+html.tab-bare .tablet{width:100%;max-width:100%;aspect-ratio:auto;padding:10px;border-radius:26px}html.tab-bare #kioskApp{border-radius:16px}html.tab-bare #kioskApp>.k-grid{overflow:visible}
 .k-top{display:flex;align-items:center;gap:10px 12px;padding:10px 16px;background:#F4EEE4;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .k-top .logo{font:600 20px var(--caps);letter-spacing:.14em}
 .k-top select{border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:#fff;min-width:0}
@@ -175,21 +176,31 @@ tr.bad td{background:#F9E6E3}
 .modal{position:fixed;inset:0;background:#2a281f80;display:grid;place-items:center;z-index:20;padding:16px}
 .modal[hidden]{display:none}
 .sheet{background:var(--paper);border-radius:16px;padding:18px;width:min(440px,100%);max-height:90vh;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-.toast{position:fixed;right:16px;bottom:16px;z-index:30;background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;max-width:min(360px,calc(100vw - 32px));box-shadow:0 8px 24px #0004}
+.toast{position:fixed;right:16px;bottom:16px;z-index:30;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;max-width:min(360px,calc(100vw - 32px));box-shadow:0 8px 24px #0004}
 .toast.bad{background:var(--bad)}
 .toast[hidden]{display:none}
-@media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.phone{width:100%;max-width:100%;aspect-ratio:auto;padding:0;border-radius:18px;background:none;box-shadow:none}.scr{border-radius:18px;border:1px solid var(--line)}.sbar,.island,.homebar{display:none}#custApp{overflow:visible}#custApp>.lc-body{min-height:340px}#custApp>.lc-foot{padding-bottom:6px}.sum b{font-size:18px}.k-top{padding:10px}}
+@media(max-width:480px),(max-height:500px) and (orientation:landscape) and (max-width:960px){main{padding:12px 10px 40px}.ph-body{padding:12px}.phone{width:100%;max-width:100%;aspect-ratio:auto;padding:0;border-radius:18px;background:none;box-shadow:none}.scr{border-radius:18px;border:1px solid var(--line)}.sbar,.island,.homebar{display:none}#custApp{overflow:visible}#custApp>.lc-body{min-height:340px}#custApp>.lc-foot{padding-bottom:6px}.sum b{font-size:18px}.k-top{padding:10px}}
 .devwrap{flex:0 0 auto;min-width:0;max-width:100%}
 .devwrap>.phone,.devwrap>.tablet{transform-origin:0 0}
 /* guided demo */
 .demo-btn{background:var(--gold);color:#fff;border:0;border-radius:99px;padding:6px 16px;font-weight:600}
 main.demo{transform-origin:0 0;will-change:transform}
 #dBlock{position:fixed;inset:0;z-index:40}
-#dSpot{position:fixed;z-index:41;border-radius:16px;box-shadow:0 0 0 3px var(--gold),0 0 0 9999px #2a281f59;pointer-events:none;transition:all .4s cubic-bezier(.2,.7,.2,1)}
-#dCur{position:fixed;z-index:43;width:28px;height:28px;pointer-events:none;transition:left .45s cubic-bezier(.3,.7,.2,1),top .45s cubic-bezier(.3,.7,.2,1);filter:drop-shadow(0 2px 3px #0006);overflow:visible}
-#dRing{position:fixed;z-index:42;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:3px solid var(--gold);opacity:0;pointer-events:none}
-#dRing.tap{animation:tap .5s ease-out}
-@keyframes tap{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.8)}}
+/* the frame never slides or resizes between targets: it fades out while the screen moves and fades back in on the exact spot */
+#dSpot{position:fixed;z-index:41;border-radius:16px;box-shadow:0 0 0 3px var(--gold),0 0 0 9999px #2a281f59;pointer-events:none;opacity:0;transition:opacity .22s ease}
+/* fingertip, like iOS "show touches": appears on the button, presses, lifts */
+#dTouch{position:fixed;z-index:43;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:#ffffffa6;border:2px solid #3B3A3059;box-shadow:0 2px 10px #2a281f40;pointer-events:none;opacity:0;transform:scale(1.35);transition:opacity .16s ease,transform .16s ease}
+#dTouch.on{opacity:1;transform:scale(1)}
+#dTouch.press{transform:scale(.8);background:#ffffffd9}
+#dRing{position:fixed;z-index:42;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:2px solid #fff;opacity:0;pointer-events:none}
+#dRing.tap{animation:tap .45s ease-out}
+@keyframes tap{0%{opacity:.9;transform:scale(.7)}100%{opacity:0;transform:scale(1.9)}}
+/* a sideways phone is too short for the demo's caption plus the screen: ask to turn it upright, the demo waits */
+#dRotate{display:none;position:fixed;inset:0;z-index:50;background:#2a281fe8;color:#fff;place-items:center;align-content:center;gap:10px;text-align:center;padding:24px}
+#dRotate b{font:600 19px/1.4 var(--head)}
+#dRotate .ic{font-size:34px;line-height:1}
+#dRotate button{justify-self:center;margin-top:6px;border:1px solid #fff8;background:none;color:#fff;border-radius:99px;padding:6px 16px}
+@media(max-height:500px) and (orientation:landscape) and (max-width:960px){#dRotate{display:grid}}
 #dCap{position:fixed;z-index:44;left:50%;bottom:18px;transform:translateX(-50%);width:min(560px,calc(100vw - 24px));background:#F8F5EF;border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 40px #2a281f55;padding:14px 16px;display:grid;gap:6px}
 #dCap .k{font:600 11px var(--caps);letter-spacing:.16em;color:var(--gold)}
 #dCap .ti{font:600 18px/1.35 var(--head)}
@@ -297,8 +308,8 @@ function seedPay(b, method) {
   logEv(end, b.br, 'ระบบ', 'ปิดคิว', `${b.id} → เสร็จสิ้น`);
 }
 (function seed() {
-  logEv('09:55', 's62', 'iPad สุขุมวิท 62/1', 'เช็กชื่อเข้าเวร', 'เมย์, ฝน');
-  logEv('08:52', 'fi', 'iPad แฟชั่นไอซ์แลนด์', 'เช็กชื่อเข้าเวร', 'บีม, ใหม่');
+  logEv('09:55', 's62', 'iPad สุขุมวิท 62/1', 'ลงชื่อเข้างาน', 'เมย์, ฝน');
+  logEv('08:52', 'fi', 'iPad แฟชั่นไอซ์แลนด์', 'ลงชื่อเข้างาน', 'บีม, ใหม่');
   const B = [
     mk('s62', 0, 600, 's1', ['treat'], 'done', 1, 'คุณนุ่น'),
     mk('s62', 0, 630, 's2', [], 'done', 2, 'คุณเบล'),
@@ -440,14 +451,14 @@ function renderKiosk() {
       <span class="muted small">${dayLabel(0)} · ${fmt(NOW)}</span>
       <button class="bell" data-act="k-bell">🔔 ${S.unread ? `<span class="badge">${S.unread}</span>` : ''}</button></div>
     <div class="k-grid"><div class="k-side">
-      <div class="card"><h3>เช็กชื่อเข้าเวรวันนี้</h3><div class="chips">
+      <div class="card"><h3>ช่างที่มาทำงานวันนี้</h3><div class="chips">
         ${S.staff.filter(s => s.br === br).map(s => `<button class="chip ${s.on ? 'on' : ''}" data-act="k-staff" data-id="${s.id}">${s.on ? '✓ ' : ''}${s.name}</button>`).join('')}</div>
         <p class="small" style="margin:8px 0 0">รับคิวซ้อนกันได้สูงสุด <b>${cap(br, 0)}</b> คิว/ช่วงเวลา</p></div>
       <button class="primary" data-act="k-walkin">+ ลูกค้า Walk-in</button>
       <button class="primary" style="background:#4E6E8E" data-act="k-phone">+ คิวจากโทรศัพท์ / แชท</button>
       <div class="card"><h3>สรุปวันนี้</h3>${counts.map(([k, n]) => `<div class="row small"><span class="pill st-${k}">${STATUS[k]}</span><b>${n}</b></div>`).join('')}</div>
     </div><div>
-      ${overloads(br).map(([a, b]) => `<div class="warn">⚠️ ช่วง <b>${fmt(a)}–${fmt(b)}</b> มีคิวมากกว่าพนักงานที่เข้าเวร (${cap(br, 0)} คน) · ระบบปิดรับจองช่วงนี้แล้ว กรุณาโทรขอเลื่อนเวลาลูกค้า</div>`).join('')}
+      ${overloads(br).map(([a, b]) => `<div class="warn">⚠️ ช่วง <b>${fmt(a)}–${fmt(b)}</b> มีคิวมากกว่าช่างที่มาทำงาน (${cap(br, 0)} คน) · ระบบปิดรับจองช่วงนี้แล้ว กรุณาโทรขอเลื่อนเวลาลูกค้า</div>`).join('')}
       ${today.map(b => {
         const acts = {
           unassigned: `<button class="btn-s go" data-act="k-assign" data-id="${b.id}">จ่ายงาน</button><button class="btn-s" data-act="k-st" data-st="noshow" data-id="${b.id}">ไม่มา</button>`,
@@ -474,7 +485,7 @@ function openAssign(id) {
   pick = null;
   openSheet(`<h2>จ่ายงาน · ${fmt(b.start)}–${fmt(b.start + b.dur)}</h2>
     <div class="small muted">${esc(b.name)} · ${svcLine(b)}</div>
-    <div class="chips">${on.map(s => { const busy = busyOverlap(s.id, b); return `<button class="chip" data-act="m-pick" data-id="${s.id}" ${busy ? 'disabled' : ''}>${s.name}${busy ? ' (ติดคิว ' + fmt(busy.start) + ')' : ''}</button>`; }).join('') || '<span class="muted">ยังไม่มีพนักงานเช็กชื่อเข้าเวร</span>'}</div>
+    <div class="chips">${on.map(s => { const busy = busyOverlap(s.id, b); return `<button class="chip" data-act="m-pick" data-id="${s.id}" ${busy ? 'disabled' : ''}>${s.name}${busy ? ' (ติดคิว ' + fmt(busy.start) + ')' : ''}</button>`; }).join('') || '<span class="muted">ยังไม่มีช่างลงชื่อเข้างาน</span>'}</div>
     <label class="field">PIN 4 หลักของช่าง (mockup: ใส่เลขอะไรก็ได้)<input id="pin" inputmode="numeric" maxlength="4" placeholder="••••"></label>
     <button class="primary" data-act="m-assign" data-id="${id}" disabled>ยืนยันจ่ายงาน</button>
     <button class="ghost" data-act="m-close">ปิด</button>`);
@@ -570,7 +581,7 @@ function renderOwner() {
         <h3 style="margin-top:14px">Add-on ที่ขายได้</h3><table>${Object.keys(AD).map(k => `<tr><td>${AD[k].name}</td><td class="n">${addonCount[k] || 0} ครั้ง</td></tr>`).join('')}</table></div>
       <div class="card"><h3>ตั้งค่าการจอง</h3>
         <div class="row"><span>ปิดรับจองออนไลน์ชั่วคราว</span><input type="checkbox" data-set="paused" ${S.paused ? 'checked' : ''}></div>
-        <div class="row"><span>จำนวนพนักงานมาตรฐาน<br><span class="small muted">ใช้คิดคิวล่วงหน้าก่อน iPad เช็กชื่อ</span></span><input type="number" min="1" max="6" data-set="defaultCap" value="${S.defaultCap}" style="width:64px"></div>
+        <div class="row"><span>จำนวนพนักงานมาตรฐาน<br><span class="small muted">ใช้คิดคิวล่วงหน้า ก่อนช่างลงชื่อเข้างานที่ iPad</span></span><input type="number" min="1" max="6" data-set="defaultCap" value="${S.defaultCap}" style="width:64px"></div>
         <div class="row"><span>เวลาพักระหว่างคิว (Buffer)</span><select data-set="buffer">${[0, 5, 10].map(v => `<option value="${v}" ${S.buffer === v ? 'selected' : ''}>${v} นาที</option>`).join('')}</select></div>
         <div class="row"><span>ยกเลิก/เลื่อนได้ก่อนนัด</span><select data-set="cutoffH">${[1, 2, 3, 24].map(v => `<option value="${v}" ${S.cutoffH === v ? 'selected' : ''}>${v} ชม.</option>`).join('')}</select></div>
         <h3 style="margin-top:14px">เมนูบริการ</h3><table>
@@ -584,10 +595,17 @@ function renderOwner() {
 
 /* ---------- wiring ---------- */
 // shrink the device frames as a whole (true iPhone 16 Pro / iPad Pro 13 proportions) so they fit short laptop screens
+// a phone turned sideways: too short for a device frame (same condition as the CSS media queries)
+const shortLand = () => innerHeight <= 500 && innerWidth > innerHeight && innerWidth <= 960;
+const KMIN = 0.92; // smallest frame scale that keeps the 11px labels at 10px or more on screen
 function fitOne(dev, W, H, minW) {
   const wrap = dev.parentElement, w = innerWidth, h = innerHeight;
-  if (w <= minW) { dev.style.transform = ''; wrap.style.width = '100%'; wrap.style.height = ''; return; }
-  const k = Math.min(1, (h - 96) / H, (w - 32) / W);
+  // too narrow for a readable frame: show the bare screen (CSS handles narrow widths; html.tab-bare covers the iPad in between)
+  const bare = w <= minW || shortLand() || (w - 32) / W < KMIN;
+  if (dev.classList.contains('tablet')) document.documentElement.classList.toggle('tab-bare', bare && w > minW);
+  if (bare) { dev.style.transform = ''; wrap.style.width = '100%'; wrap.style.height = ''; return; }
+  // short screens: never shrink below KMIN, the page scrolls a little instead
+  const k = Math.min(1, Math.max(KMIN, (h - 96) / H), (w - 32) / W);
   dev.style.transform = k < 1 ? `scale(${k})` : '';
   wrap.style.width = W * k + 'px'; wrap.style.height = H * k + 'px';
 }
@@ -638,7 +656,7 @@ document.addEventListener('click', e => {
   }
   else if (a === 'k-staff') {
     const s = S.staff.find(x => x.id === +el.dataset.id); s.on = !s.on;
-    logEv(stamp(), s.br, kioskWho(s.br), s.on ? 'เช็กชื่อเข้าเวร' : 'ออกจากเวร', s.name);
+    logEv(stamp(), s.br, kioskWho(s.br), s.on ? 'ลงชื่อเข้างาน' : 'ลงชื่อออก', s.name);
     if (c.day === 0 && c.br === s.br) c.time = null;
   }
   else if (a === 'k-bell') S.unread = 0;
@@ -733,7 +751,7 @@ const DEMO = [
   { v: 'cust', t: '[data-act="c-br"][data-k="s62"]', z: 1.4, click: 1, title: 'เลือกสาขา', text: 'แต่ละสาขามีเวลาเปิด-ปิดของตัวเอง ระบบคิดเวลาว่างแยกกัน' },
   { v: 'cust', t: '[data-act="c-svc"][data-k="s1"]', z: 1.4, click: 1, title: 'เลือกบริการ', text: 'เมนูและราคาตรงกับป้ายหน้าร้าน' },
   { v: 'cust', t: '[data-act="c-add"][data-k="treat"]', z: 1.4, click: 1, title: 'เลือก Add-on', text: 'ระบบรวมราคาและเวลาให้เอง ทรีตเมนต์ +50 บาท ไม่เพิ่มเวลา' },
-  { v: 'cust', t: '.slots', z: 1.3, title: 'เห็นเฉพาะเวลาที่ว่างจริง', text: 'ช่องที่ขีดฆ่าคือคิวเต็มตามจำนวนช่างที่เข้าเวร หรือทำไม่ทันก่อนร้านปิด ลูกค้าไม่เห็นชื่อหรือคิวของคนอื่น' },
+  { v: 'cust', t: '.slots', z: 1.3, title: 'เห็นเฉพาะเวลาที่ว่างจริง', text: 'ช่องที่ขีดฆ่าคือคิวเต็มตามจำนวนช่างที่มาทำงาน หรือทำไม่ทันก่อนร้านปิด ลูกค้าไม่เห็นชื่อหรือคิวของคนอื่น' },
   { v: 'cust', t: '.slot[data-t="1020"]', z: 1.4, click: 1, title: 'เลือกเวลา 17:00', text: '' },
   { v: 'cust', t: '[data-set="phone"]', z: 1.4, type: '0812345678', title: 'กรอกเบอร์โทรครั้งเดียว', text: 'ใช้ยืนยันตัวตนตอนลูกค้ายกเลิกหรือเลื่อนคิวเอง' },
   { v: 'cust', t: '[data-act="c-book"]', z: 1.35, click: 1, title: 'กดยืนยันการจอง', text: '' },
@@ -742,7 +760,7 @@ const DEMO = [
   { v: 'cust', t: lastFlex, z: 1.35, title: 'ข้อความยืนยันเข้าแชทเดิม', text: 'ส่งแบบตอบกลับ จึงไม่กินโควต้าข้อความของ LINE OA แบบฟรี' },
   { v: 'kiosk', t: '.bell', z: 1.5, title: 'iPad หน้าร้านเด้งเตือนทันที', text: 'พนักงานไม่ต้องหยุดสระผมมาตอบแชท และไม่ต้องลง Google Calendar เองอีก' },
   { v: 'kiosk', t: () => document.querySelector(`[data-act="k-assign"][data-id="${myId()}"]`)?.closest('.q'), z: 1.25, title: 'คิวใหม่อยู่ในตารางของสาขาแล้ว', text: 'สถานะ "รอระบุช่าง"' },
-  { v: 'kiosk', t: '.k-side .card', z: 1.35, title: 'เช้า: ติ๊กชื่อพนักงานที่มาทำงาน', text: 'ระบบรับคิวซ้อนกันได้ไม่เกินจำนวนช่างที่มาจริง ถ้าช่างไม่พอจะขึ้นเตือนและปิดรับจองช่วงนั้นให้เอง' },
+  { v: 'kiosk', t: '.k-side .card', z: 1.35, title: 'เช้า: ช่างลงชื่อเข้างาน', text: 'ระบบรับคิวซ้อนกันได้ไม่เกินจำนวนช่างที่มาจริง ถ้าช่างไม่พอจะขึ้นเตือนและปิดรับจองช่วงนั้นให้เอง' },
   { v: 'kiosk', t: () => document.querySelector(`[data-act="k-assign"][data-id="${myId()}"]`), z: 1.3, click: 1, title: 'กด "จ่ายงาน"', text: '' },
   { v: null, t: '[data-act="m-pick"][data-id="2"]', click: 1, title: 'เลือกช่างที่รับงาน', text: 'ช่างที่ติดคิวช่วงเวลาเดียวกันจะเลือกไม่ได้ ระบบกันจ่ายงานซ้อน' },
   { v: null, t: '#pin', type: '1234', title: 'ช่างยืนยันด้วย PIN 4 หลัก', text: 'บันทึกว่าใครทำคิวไหน ใช้คิดค่าตอบแทนได้แม่นยำ' },
@@ -795,43 +813,73 @@ function dZoom(target, z) {
   const ty = small && r.height > avail ? 64 - r.top : vy - mr.top - cy * zfit;
   m.style.transform = `translate(${tx}px, ${ty}px) scale(${zfit})`;
 }
+// frame the target exactly: measured after the zoom has settled, corner radius follows the target's own (scaled) corners
 function dPlace(target) {
-  const r = target.getBoundingClientRect(), pad = 6;
-  $('#dSpot').dataset.step = D.i;
-  Object.assign($('#dSpot').style, { opacity: 1, left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px' });
-  const x = r.left + Math.min(r.width / 2, 60), y = r.top + r.height / 2;
-  Object.assign($('#dCur').style, { left: x + 'px', top: y + 'px' });
-  Object.assign($('#dRing').style, { left: x + 'px', top: y + 'px' });
+  const r = target.getBoundingClientRect(), pad = 5, sp = $('#dSpot');
+  const k = target.offsetWidth ? r.width / target.offsetWidth : 1;
+  const rad = Math.min((parseFloat(getComputedStyle(target).borderTopLeftRadius) || 6) * k + pad, Math.min(r.width, r.height) / 2 + pad);
+  sp.dataset.step = D.i;
+  Object.assign(sp.style, { left: r.left - pad + 'px', top: r.top - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px', borderRadius: rad + 'px', opacity: 1 });
 }
+// a fingertip lands on the middle of the target, presses, and lifts; the action fires at the press
+async function dTap(target, action) {
+  const r = target.getBoundingClientRect(), x = r.left + r.width / 2 + 'px', y = r.top + r.height / 2 + 'px';
+  const f = $('#dTouch'), ring = $('#dRing');
+  Object.assign(f.style, { left: x, top: y }); Object.assign(ring.style, { left: x, top: y });
+  f.className = 'on'; await hold(220);
+  f.className = 'on press'; ring.classList.remove('tap'); void ring.offsetWidth; ring.classList.add('tap');
+  await hold(150);
+  action?.();
+  f.className = '';
+}
+const DEVICE_OF = { cust: '.phone', kiosk: '.tablet', owner: '#ownerApp' };
 function dCaption(st, i) {
   $('#dCap').innerHTML = `<div class="k">DEMO · ${i + 1} / ${DEMO.length}</div><div class="ti">${st.title}</div>${st.text ? `<div class="tx">${st.text}</div>` : ''}
     <div class="bar"><i style="width:${(i + 1) / DEMO.length * 100}%"></i></div>
     <div class="ctl"><button data-d="pause">${D.paused ? '▶ เล่นต่อ' : '⏸ หยุดชั่วคราว'}</button><button data-d="next">ถัดไป ›</button><span class="sp"></span><button class="go" data-d="exit">ลองกดเอง</button></div>`;
 }
+// window resized or phone rotated mid-step: re-fit the current target so the frame stays on it
+addEventListener('resize', () => {
+  if (!D.on || !D.tg || shortLand()) return;
+  clearTimeout(D.rz);
+  D.rz = setTimeout(() => {
+    const tg = el$(D.tg); if (!tg) return;
+    const shown = $('#dSpot').style.opacity === '1';
+    $('#dSpot').style.opacity = 0; dZoom(tg, D.z);
+    if (shown) setTimeout(() => D.on && dPlace(tg), 650);
+  }, 200);
+});
 async function dRun() {
   D.on = true; scrollTo(0, 0);
-  document.body.insertAdjacentHTML('beforeend', '<div id="dBlock"></div><div id="dSpot"></div><div id="dRing"></div><svg id="dCur" viewBox="0 0 24 24"><path d="M4 2l15 9.5-6.6 1.4L16 20l-3 1.4-3.6-7.2L4 18.6z" fill="#fff" stroke="#3B3A30" stroke-width="1.4" stroke-linejoin="round"/></svg><div id="dCap"></div>');
-  Object.assign($('#dCur').style, { left: innerWidth / 2 + 'px', top: innerHeight / 2 + 'px' });
+  document.body.insertAdjacentHTML('beforeend', '<div id="dBlock"></div><div id="dSpot"></div><div id="dRing"></div><div id="dTouch"></div><div id="dCap"></div><div id="dRotate"><span class="ic">📱↻</span><b>หมุนมือถือเป็นแนวตั้งเพื่อดูเดโม</b><span>เดโมจะเล่นต่อเองเมื่อหมุนแล้ว</span><button data-d="exit">หรือลองกดเองแนวนอน</button></div>');
   $('main').classList.add('demo');
+  let shown = null; // which device is on screen
   for (D.i = 0; D.i < DEMO.length && D.on; D.i++) {
     const st = DEMO[D.i];
+    while (D.on && shortLand()) { await hold(300); shown = null; } // wait until the phone is upright, then re-show the whole device
     D.skip = false;
+    $('#dSpot').style.opacity = 0; // hide the frame while the screen moves, so it never slides or shrinks
     if (st.v) document.querySelector(`[data-v="${st.v}"]`).click();
     await hold(150);
     let tg = el$(st.t);
     if (!tg) { console.warn('demo: missing target', st.title); continue; }
     dCaption(st, D.i);
-    if (st.v) { dZoom(tg, st.z); await hold(600); } else await hold(150); // let the zoom settle before measuring
+    if (st.v) {
+      // switching device: first pull back to the whole device screen, then zoom in on the target
+      const dev = $(DEVICE_OF[st.v]);
+      if (st.v !== shown && dev && dev !== tg) { dZoom(dev, 1); await hold(1200); }
+      shown = st.v;
+      dZoom(tg, st.z); D.tg = st.t; D.z = st.z; await hold(650); // let the zoom settle before measuring
+    } else await hold(150);
     tg = el$(st.t); dPlace(tg);
-    await hold(450);
+    await hold(400);
     if (st.type) {
+      await dTap(tg); // no real focus: on a phone that would pop up the keyboard
       tg.value = '';
       for (const ch of st.type) { if (!D.on) break; tg.value += ch; tg.dispatchEvent(new Event('input', { bubbles: true })); await new Promise(r => setTimeout(r, 55)); }
     }
     if (st.click) {
-      const ring = $('#dRing'); ring.classList.remove('tap'); void ring.offsetWidth; ring.classList.add('tap');
-      await new Promise(r => setTimeout(r, 180));
-      el$(st.t)?.click(); // the step's action always runs, even when the viewer skips ahead
+      await dTap(tg, () => el$(st.t)?.click()); // the step's action always runs, even when the viewer skips ahead
       $('#dSpot').style.opacity = 0;
     }
     D.skip = false;
@@ -839,8 +887,7 @@ async function dRun() {
   }
   if (!D.on) return;
   $('main').style.transform = 'none';
-  Object.assign($('#dSpot').style, { left: '50%', top: '50%', width: '0px', height: '0px' });
-  $('#dCur').style.display = 'none';
+  $('#dSpot').style.opacity = 0;
   $('#dCap').innerHTML = `<div class="k">จบเดโม</div><div class="ti">ทั้งหมดนี้ทำงานต่อกันอัตโนมัติ ตั้งแต่ลูกค้าจองจนเจ้าของร้านเห็นยอด</div>
     <div class="ctl"><button data-d="again">↺ ดูอีกครั้ง</button><span class="sp"></span><button class="go" data-d="exit">ลองกดเอง</button></div>`;
 }
