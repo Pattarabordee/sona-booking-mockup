@@ -5,19 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>sōna Booking Mockup</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Cinzel:wght@500;600&family=Playfair+Display:wght@600;700&family=Prompt:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F1EADF;--paper:#FBF8F3;--ink:#3A372E;--muted:#6B6455;--olive:#77754F;--olive-d:#55533A;--gold:#B48A4F;--line:#E3D8C7;--ok:#5F7F52;--warn:#C2763E;--bad:#B5554B}
+:root{--bg:#ECE7DE;--paper:#F8F5EF;--ink:#3B3A30;--muted:#6B6457;--olive:#7D7F66;--olive-d:#4F4E3D;--gold:#8A7F6C;--line:#D9D0C2;--ok:#5F7F52;--warn:#C2763E;--bad:#B5554B;
+  --serif:"Playfair Display",Georgia,serif;--caps:"Cinzel",serif;--head:"Prompt","IBM Plex Sans Thai",sans-serif}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans Thai",system-ui,sans-serif}
+body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#F6F3ED 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans Thai",system-ui,sans-serif}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
-.nav{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--olive-d);color:#F4EEE4}
-.brand .logo{font:600 26px "Cormorant Garamond",serif;letter-spacing:.06em}
-.brand small{opacity:.75;margin-left:8px}
+.num{font-family:var(--serif);font-variant-numeric:lining-nums;font-weight:700}
+.nav{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:10px 16px;background:#F8F5EFF2;border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand .logo{font:600 24px/1 var(--caps);letter-spacing:.14em}
+.brand small{font:400 12.5px "IBM Plex Sans Thai",sans-serif;color:var(--muted)}
 .nav nav{display:flex;gap:6px;flex-wrap:wrap}
-.nav nav button{background:transparent;border:1px solid #ffffff40;color:#F4EEE4;border-radius:99px;padding:6px 14px}
-.nav nav button.on{background:#F4EEE4;color:var(--olive-d);border-color:#F4EEE4}
+.nav nav button{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:99px;padding:6px 14px}
+.nav nav button.on{background:var(--olive-d);color:#F8F5EF;border-color:var(--olive-d)}
+.leaf{position:absolute;width:74px;height:74px;color:var(--olive);opacity:.75;pointer-events:none}
+.tagpill{display:inline-block;background:var(--gold);color:#fff;font:600 12px var(--caps);letter-spacing:.12em;border-radius:99px;padding:2px 12px}
+.notice{background:var(--gold);color:#fff;border-radius:99px;padding:8px 14px;font-size:13.5px;text-align:center}
 .badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:99px;background:var(--bad);color:#fff;font-size:12px;text-align:center}
 main{padding:20px 16px 48px}
 .view{display:none}
@@ -25,12 +31,12 @@ main{padding:20px 16px 48px}
 .view.on>*{min-width:0;max-width:100%}
 #cust.on{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px}
-h2,h3{margin:0 0 8px}
+h2,h3{margin:0 0 8px;font-family:var(--head);font-weight:600}
 h3{font-size:15px}
 .muted{color:var(--muted)}
 .small{font-size:13px}
 .pill{display:inline-block;padding:1px 10px;border-radius:99px;font-size:12.5px;white-space:nowrap}
-.primary{background:var(--olive-d);color:#fff;border:0;border-radius:10px;padding:11px 16px;width:100%;font-weight:600}
+.primary{background:var(--olive-d);color:#fff;border:0;border-radius:99px;padding:11px 16px;width:100%;font-weight:600}
 .primary:disabled{opacity:.4;cursor:not-allowed}
 .ghost{background:transparent;border:1px solid var(--line);border-radius:10px;padding:9px 14px}
 .ghost:disabled{opacity:.5;cursor:not-allowed}
@@ -41,25 +47,43 @@ h3{font-size:15px}
 .bigbtns button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:14px 8px;font-weight:600}
 .bigbtns button span{display:block;font-size:26px}
 /* phone */
-.phone{flex:0 1 390px;width:100%;max-width:390px;background:var(--paper);border:1px solid var(--line);border-radius:28px;overflow:hidden;box-shadow:0 10px 30px #3a372e1f;min-width:0}
+.phone{position:relative;flex:0 0 auto;width:min(409px,100%,calc((100vh - 100px) * 409 / 868));aspect-ratio:409/868;background:#1C1C1E;border-radius:62px;padding:8px;box-shadow:0 0 0 2px #9C978C,0 24px 60px #3a372e45;display:flex;flex-direction:column;min-width:0}
+.scr{position:relative;flex:1;min-height:0;border-radius:54px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column}
+.sbar{flex:none;height:50px;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 40px;font:600 15px -apple-system,"SF Pro Text","Segoe UI",system-ui,sans-serif;background:#F8F5EF;color:#111}
+.sbar svg{height:12px;margin-left:5px;vertical-align:middle}
+.phone.dark .sbar{background:#1F1F1F;color:#fff}
+.island{position:absolute;top:19px;left:50%;transform:translateX(-50%);width:122px;height:35px;background:#000;border-radius:20px;z-index:3}
+.homebar{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:#1C1C1E;opacity:.8;z-index:3;pointer-events:none}
+.phone.dark .homebar{background:#fff}
+#custApp{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;overscroll-behavior:contain}
+#custApp>*{flex:none}
+#custApp>.lc-body{flex:1 1 auto;min-height:0;max-height:none}
+#custApp>.lc-foot{padding-bottom:22px}
+#custApp>.ph-body{padding-bottom:30px}
 .note{flex:0 1 320px;width:100%;max-width:390px;min-width:0}
-.ph-head{background:linear-gradient(135deg,#E9DFCF,#F6F1E9);padding:14px 16px 12px;text-align:center;border-bottom:1px solid var(--line);position:relative}
-.ph-head .logo{font:600 32px/1 "Cormorant Garamond",serif;letter-spacing:.08em}
-.ph-head .tag{font-size:12px;color:var(--muted)}
-.ph-head .back{position:absolute;left:10px;top:12px;border:0;background:transparent;font-size:14px;color:var(--olive-d)}
+.ph-head{background:linear-gradient(180deg,#F8F5EF,#F1ECE3);padding:16px 16px 12px;text-align:center;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.ph-head .leaf{left:-6px;top:-4px}
+.ph-head .leaf.r{left:auto;right:-6px;transform:scaleX(-1)}
+.ph-head .logo{font:600 34px/1 "Cormorant Garamond",serif;letter-spacing:.1em}
+.ph-head .tag{font-size:12px;color:var(--muted);font-family:"Cormorant Garamond",serif;letter-spacing:.06em}
+.ph-head .back{position:absolute;left:10px;top:10px;z-index:2;border:1px solid var(--line);background:#F8F5EFE6;border-radius:99px;padding:2px 10px;font-size:13px;color:var(--olive-d)}
 .ph-body{padding:14px 16px 18px;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
-.sec-t{font-weight:600;font-size:14px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px}
+.sec-t{font:600 14.5px var(--head);align-items:center;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px}
 .brs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
 .brs button{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:8px 10px;text-align:left}
 .brs button.on{border-color:var(--olive-d);background:#F4F1E6}
-.svc{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;width:100%;text-align:left}
-.svc.on{border-color:var(--olive-d);background:#F4F1E6}
-.svc .ic{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;flex:none}
+.svc{display:flex;gap:12px;align-items:center;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;background:#FBF9F5;width:100%;text-align:left}
+.svc.on{border-color:var(--olive-d);background:#F1EEE4;box-shadow:inset 0 0 0 1px var(--olive-d)}
+.svc .ic{width:44px;height:44px;border-radius:50%;background:var(--olive-d);color:#F8F5EF;display:grid;place-items:center;flex:none}
+.svc .ic svg{width:22px;height:22px}
 .svc>span:nth-child(2),.pkg>div:nth-child(2){flex:1;min-width:0}
-.svc .p{margin-left:auto;font:600 19px "IBM Plex Sans Thai",sans-serif;white-space:nowrap}
-.add{display:flex;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px dashed var(--line)}
-.add:last-child{border:0}
-.add span.r{margin-left:auto;color:var(--muted);font-size:13px;text-align:right}
+.svc .nm{font:600 16px var(--head)}
+.svc .p{margin-left:auto;padding-left:12px;border-left:1px solid var(--line);font:700 24px/1 var(--serif);font-variant-numeric:lining-nums;white-space:nowrap;text-align:center}
+.svc .p small{display:block;font:400 11px "IBM Plex Sans Thai",sans-serif;color:var(--muted);margin-top:4px}
+.add{display:flex;align-items:center;gap:8px;padding:8px 2px}
+.add .lead{flex:1;min-width:12px;border-bottom:1.5px dotted #B9AF9F;transform:translateY(4px)}
+.add .nm small{display:block;color:var(--muted);font-size:11.5px;line-height:1.2}
+.add span.r{color:var(--ink);font:700 16px var(--serif);font-variant-numeric:lining-nums;white-space:nowrap}
 .days{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
 .day{flex:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-size:13px;text-align:center}
 .day.on{background:var(--olive-d);color:#fff;border-color:var(--olive-d)}
@@ -67,14 +91,14 @@ h3{font-size:15px}
 .slot{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 0;font-size:13.5px}
 .slot.on{background:var(--gold);color:#fff;border-color:var(--gold)}
 .slot:disabled{background:#EFEAE2;color:#A79E8F;text-decoration:line-through;cursor:not-allowed}
-.pkg{background:linear-gradient(135deg,#4F7D4B,#678F5E);color:#fff;border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center}
+.pkg{background:#E8E4D8;border:1px solid var(--line);color:var(--ink);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center}
 .pkg label{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:13px;white-space:nowrap}
 .sum{background:#F4F1E6;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.sum b{font:600 21px "IBM Plex Sans Thai",sans-serif;white-space:nowrap}
+.sum b{font:700 24px var(--serif);font-variant-numeric:lining-nums;white-space:nowrap}
 .field{display:grid;gap:4px;font-size:13px}
 .field input,.field select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;min-width:0}
 .ticket{border:1.5px dashed var(--gold);border-radius:14px;padding:14px;text-align:center;background:#fff}
-.ticket .code{font:600 26px "IBM Plex Sans Thai",sans-serif;letter-spacing:.04em;color:var(--olive-d)}
+.ticket .code{font:700 28px var(--serif);font-variant-numeric:lining-nums;letter-spacing:.04em;color:var(--olive-d)}
 .note h3{font-size:14px}
 .note ul{margin:0;padding-left:18px;font-size:13.5px}
 .note li{margin:4px 0}
@@ -91,16 +115,21 @@ h3{font-size:15px}
 .bub.flex .fb{padding:8px 12px}
 .slipbtn{align-self:flex-end;border:1px dashed #06C755;background:transparent;color:#7EE2A8;border-radius:12px;padding:6px 10px;font-size:13px}
 .rich{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:#ECE6DA}
-.rm{border:0;border-radius:8px;background:linear-gradient(135deg,#F7F3EC,#E7EBDD);padding:10px 6px;text-align:center;font-size:13px;line-height:1.3;color:var(--ink);min-height:62px;display:grid;place-items:center}
+.rm{border:0;border-radius:8px;background:linear-gradient(135deg,#F8F5EF,#E4E7D8);font-family:var(--head);padding:10px 6px;text-align:center;font-size:13px;line-height:1.3;color:var(--ink);min-height:62px;display:grid;place-items:center}
 .rm b{display:block;font-size:15px}
 .rm.book{grid-column:span 2;background:var(--olive-d);color:#fff}
 .rm.book b{font-size:20px}
 .rm.hint{outline:2px dashed var(--gold);outline-offset:-4px}
 .lc-foot{background:#1F1F1F;color:#ddd;text-align:center;padding:6px;font-size:13px}
 /* tablet */
-.tablet{width:min(1120px,100%);background:var(--paper);border:10px solid #2C2A23;border-radius:26px;overflow:hidden;box-shadow:0 10px 30px #3a372e2e}
+.tablet{position:relative;width:min(1180px,100%,calc((100vh - 100px) * 1376 / 1032));aspect-ratio:1376/1032;background:#1C1C1E;border-radius:42px;padding:18px;box-shadow:0 0 0 2px #9C978C,0 24px 60px #3a372e45;display:flex}
+.tablet .cam{position:absolute;top:7px;left:50%;width:6px;height:6px;border-radius:50%;background:#3A3A3C;transform:translateX(-50%)}
+#kioskApp{flex:1;min-width:0;min-height:0;border-radius:24px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column}
+#kioskApp>.k-top{flex:none}
+#kioskApp>.k-grid{flex:1;min-height:0;overflow-y:auto;align-content:start}
+@media(max-width:860px){.tablet{aspect-ratio:auto;padding:10px;border-radius:26px}#kioskApp{border-radius:16px}#kioskApp>.k-grid{overflow:visible}}
 .k-top{display:flex;align-items:center;gap:10px 12px;padding:10px 16px;background:#F4EEE4;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.k-top .logo{font:600 24px "Cormorant Garamond",serif;letter-spacing:.06em}
+.k-top .logo{font:600 20px var(--caps);letter-spacing:.14em}
 .k-top select{border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:#fff;min-width:0}
 .bell{margin-left:auto;background:#fff;border:1px solid var(--line);border-radius:99px;padding:5px 12px}
 .k-grid{display:grid;grid-template-columns:minmax(0,270px) minmax(0,1fr);gap:14px;padding:14px}
@@ -108,7 +137,7 @@ h3{font-size:15px}
 .k-side{display:grid;gap:10px;align-content:start}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px}
-.chip.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.chip.on{background:var(--olive-d);border-color:var(--olive-d);color:#fff}
 .chip:disabled{opacity:.45;cursor:not-allowed}
 .warn{background:#FBEBDD;border:1px solid #EDC8A6;color:#7A4520;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:14px}
 .okbox{background:#E6EEDC;border:1px solid #C5D6B2;color:#3F5B32;border-radius:12px;padding:10px 12px;font-size:14px}
@@ -121,12 +150,12 @@ h3{font-size:15px}
 @media(max-width:560px){.q{grid-template-columns:minmax(0,1fr)}.q .act{justify-content:flex-start}}
 .st-unassigned{background:#FBE6D3;color:#8A4A1C}.st-booked{background:#E3EAF2;color:#34506B}.st-inprog{background:#E6EEDC;color:#3F5B32}.st-awaitpay{background:#F5E8CF;color:#7A5418}.st-done{background:#ECE8E0;color:#5F584A}.st-noshow,.st-cancelled{background:#F4DEDB;color:#8B3B33}
 .src{font-size:11.5px;padding:0 6px;border-radius:5px;background:#05A847;color:#fff;white-space:nowrap}
-.src.walk{background:#9A733C}.src.phone{background:#4E6E8E}
+.src.s-walk{background:#9A733C}.src.s-phone{background:#4E6E8E}
 /* owner */
 .desk{width:min(1120px,100%);display:grid;gap:14px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 @media(max-width:720px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.kpi .v{font:600 24px/1.3 "IBM Plex Sans Thai",sans-serif;font-variant-numeric:tabular-nums}
+.kpi .v{font:700 26px/1.3 var(--serif);font-variant-numeric:lining-nums tabular-nums}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 @media(max-width:720px){.two{grid-template-columns:minmax(0,1fr)}}
 .tbl{overflow-x:auto}
@@ -148,7 +177,7 @@ tr.bad td{background:#F9E6E3}
 .toast{position:fixed;right:16px;bottom:16px;z-index:30;background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;max-width:min(360px,calc(100vw - 32px));box-shadow:0 8px 24px #0004}
 .toast.bad{background:var(--bad)}
 .toast[hidden]{display:none}
-@media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.tablet{border-width:6px;border-radius:18px}.sum b{font-size:18px}.k-top{padding:10px}}
+@media(max-width:480px){main{padding:12px 10px 40px}.ph-body{padding:12px}.phone{width:100%;aspect-ratio:auto;padding:0;border-radius:18px;background:none;box-shadow:none}.scr{border-radius:18px;border:1px solid var(--line)}.sbar,.island,.homebar{display:none}#custApp{overflow:visible}#custApp>.lc-body{min-height:340px}#custApp>.lc-foot{padding-bottom:6px}.sum b{font-size:18px}.k-top{padding:10px}}
 </style>
 </head>
 <body>
@@ -162,7 +191,7 @@ tr.bad td{background:#F9E6E3}
 </header>
 <main>
   <section id="cust" class="view on">
-    <div class="phone" id="custApp"></div>
+    <div class="phone"><div class="scr"><div class="sbar"><span>9:41</span><span><svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.3A10.6 10.6 0 0 0 8 .4C5.1.4 2.5 1.5.5 3.4l1.2 1.3A8.9 8.9 0 0 1 8 2.2Zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.2-1.3A7.1 7.1 0 0 0 8 4 7.1 7.1 0 0 0 3.1 5.9l1.2 1.3c1-.9 2.3-1.4 3.7-1.4Zm0 3.6c.5 0 1 .2 1.3.5L8 11.4 6.7 9.9c.3-.3.8-.5 1.3-.5Z"/></svg><svg viewBox="0 0 27 12" fill="none" stroke="currentColor"><rect x=".5" y=".5" width="22" height="11" rx="3.5" opacity=".45"/><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor" stroke="none"/><path d="M24.5 4v4" stroke-width="1.6" opacity=".45"/></svg></span></div><div id="custApp"></div></div><div class="island"></div><div class="homebar"></div></div>
     <aside class="card note">
       <h3>ลองกดตามนี้</h3>
       <ul>
@@ -180,7 +209,7 @@ tr.bad td{background:#F9E6E3}
       </ul>
     </aside>
   </section>
-  <section id="kiosk" class="view"><div class="tablet" id="kioskApp"></div></section>
+  <section id="kiosk" class="view"><div class="tablet"><span class="cam"></span><div id="kioskApp"></div></div></section>
   <section id="owner" class="view"><div class="desk" id="ownerApp"></div></section>
 </main>
 <div id="modal" class="modal" hidden><div class="sheet" id="sheet"></div></div>
@@ -209,7 +238,12 @@ const BASE = new Date(2026, 10, 20);
 const dayLabel = d => new Date(BASE.getTime() + d * 864e5).toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short' });
 const fmt = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 const $ = s => document.querySelector(s);
-const baht = n => n.toLocaleString('th-TH') + ' ฿';
+const baht = n => n.toLocaleString('th-TH') + '.-'; // the shop writes prices as "150.-"
+const LEAF = cls => `<svg class="leaf ${cls}" viewBox="0 0 80 80" fill="currentColor" aria-hidden="true"><path d="M2 4C24 16 44 34 64 76" stroke="currentColor" stroke-width="1.5" fill="none"/>${[[12,9],[22,16],[31,25],[40,35],[48,46],[55,57],[61,68]].map(([x, y], i) => { const s = i % 2 ? 1 : -1, cx = x + 7 * s, cy = y - 5 * s; return `<ellipse cx="${cx}" cy="${cy}" rx="7.5" ry="3.2" transform="rotate(${s > 0 ? -12 : 72} ${cx} ${cy})"/>`; }).join('')}</svg>`;
+const ICON = {
+  s1: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="5.5"/><circle cx="12" cy="8" r="2.4"/><path d="M10.6 13.4V21h2.8v-7.6"/></svg>',
+  s2: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7M9.5 4.5 12 7l2.5-2.5M9.5 19.5 12 17l2.5 2.5"/></svg>',
+};
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
 const phoneValid = p => /^0\d{8,9}$/.test(String(p).replace(/\D/g, ''));
 const durOf = (svc, addons) => SV[svc].min + addons.reduce((a, k) => a + AD[k].min, 0);
@@ -250,7 +284,7 @@ function seedPay(b, method) {
     mk('s62', 0, 780, 's2', ['curl'], 'inprog', 1, 'คุณแพม', 'phone', false, '0891112222'),
     mk('s62', 0, 840, 's1', [], 'booked', 1, 'คุณกิ๊ฟ'),
     mk('s62', 0, 840, 's1', ['treat'], 'unassigned', null, 'คุณออม'),
-    mk('s62', 0, 930, 's2', [], 'unassigned', null, 'คุณพลอย', 'phone', false, '0823334444'),
+    mk('s62', 0, 900, 's2', [], 'unassigned', null, 'คุณพลอย', 'phone', false, '0823334444'),
     mk('s62', 0, 960, 's1', ['curl'], 'unassigned', null, 'คุณฟ้า'),
     mk('s62', 0, 960, 's1', [], 'unassigned', null, 'คุณมายด์'),
     mk('fi', 0, 540, 's1', [], 'done', 4, 'คุณต้นข้าว'),
@@ -293,7 +327,9 @@ const kioskWho = br => 'iPad ' + BR[br].name;
 /* ---------- customer (LINE) ---------- */
 function renderCust() {
   const c = S.c, el = $('#custApp');
-  const head = (back) => `<div class="ph-head">${back ? '<button class="back" data-act="c-chat">‹ แชท</button>' : ''}<div class="logo">sōna</div><div class="tag">— hair wash &amp; blow dry —</div></div>`;
+  $('.phone').classList.toggle('dark', c.screen === 'chat');
+  if (renderCust.screen !== c.screen) { renderCust.screen = c.screen; requestAnimationFrame(() => el.scrollTop = 0); } // keep scroll position while picking options
+  const head = (back) => `<div class="ph-head">${back ? '<button class="back" data-act="c-chat">‹ แชท</button>' : ''}${LEAF('')}${LEAF('r')}<div class="logo">sōna</div><div class="tag">— hair wash &amp; blow dry —</div></div>`;
   if (c.screen === 'chat') {
     const waiting = c.mine.filter(b => b.status === 'awaitpay');
     el.innerHTML = `<div class="lc-head"><span>‹</span><div><b>sona hair wash</b><small>ตอบกลับอัตโนมัติ</small></div></div>
@@ -339,13 +375,13 @@ function renderCust() {
   el.innerHTML = head(true) + `<div class="ph-body">
     <div><div class="sec-t">1. เลือกสาขา</div><div class="brs">
       ${Object.entries(BR).map(([k, b]) => `<button class="${c.br === k ? 'on' : ''}" data-act="c-br" data-k="${k}"><b>${b.name}</b><br><span class="small muted">${fmt(b.open)}–${fmt(b.close)}</span></button>`).join('')}</div></div>
-    <div class="pkg"><div style="font-size:22px">🎟️</div><div><b>แพ็กเกจสระไดร์ 10 ครั้ง</b><div class="small">เหลือ ${c.pkgLeft} ครั้ง</div></div>
+    <div class="pkg"><div class="num" style="width:40px;height:40px;border-radius:50%;background:var(--olive-d);color:#F8F5EF;display:grid;place-items:center;flex:none;font-size:17px">10</div><div><b>แพ็กเกจสระไดร์ 10 ครั้ง</b><div class="small">เหลือ ${c.pkgLeft} ครั้ง</div></div>
       <label><input type="checkbox" data-set="usePkg" ${c.usePkg ? 'checked' : ''} ${c.svc === 's1' && c.pkgLeft > 0 ? '' : 'disabled'}> ใช้สิทธิ์</label></div>
     <div><div class="sec-t">2. เลือกบริการ</div><div style="display:grid;gap:8px">
-      ${Object.entries(SV).map(([k, s]) => `<button class="svc ${c.svc === k ? 'on' : ''}" data-act="c-svc" data-k="${k}"><span class="ic">${k === 's1' ? '💨' : '❄️'}</span><span><b>${s.name}</b><br><span class="small muted">${s.desc} · ${s.min} นาที</span></span><span class="p">${s.price}.-</span></button>`).join('')}
+      ${Object.entries(SV).map(([k, s]) => `<button class="svc ${c.svc === k ? 'on' : ''}" data-act="c-svc" data-k="${k}"><span class="ic">${ICON[k]}</span><span><span class="nm">${s.name}</span><br><span class="small muted">${s.desc} · ${s.min} นาที</span></span><span class="p">${s.price}.-<small>${k === 's1' ? 'ทุกความยาว' : 'Cool &amp; Refresh'}</small></span></button>`).join('')}
     </div></div>
-    <div><div class="sec-t">3. บริการเสริม (Add-on)</div><div class="card" style="padding:4px 12px">
-      ${SV[c.svc].addons.map(k => `<label class="add"><input type="checkbox" data-act="c-add" data-k="${k}" ${c.addons.includes(k) ? 'checked' : ''}> ${AD[k].name}<span class="r">+${AD[k].price}.- ${AD[k].min ? '· +' + AD[k].min + ' นาที' : '· ไม่เพิ่มเวลา'}</span></label>`).join('')}
+    <div><div class="sec-t"><span>3. <span class="tagpill">ADD-ON</span> บริการเสริม</span></div><div class="card" style="padding:4px 12px">
+      ${SV[c.svc].addons.map(k => `<label class="add"><input type="checkbox" data-act="c-add" data-k="${k}" ${c.addons.includes(k) ? 'checked' : ''}> <span class="nm">${AD[k].name}<small>${AD[k].min ? '+' + AD[k].min + ' นาที' : 'ไม่เพิ่มเวลา'}</small></span><span class="lead"></span><span class="r">+${AD[k].price}.-</span></label>`).join('')}
     </div></div>
     <div><div class="sec-t">4. เลือกวัน</div><div class="days">
       ${[0, 1, 2, 3, 4, 5, 6].map(d => `<button class="day ${c.day === d ? 'on' : ''}" data-act="c-day" data-d="${d}">${d === 0 ? 'วันนี้' : dayLabel(d).split(' ')[0]}<br><b>${dayLabel(d).split(' ')[1]}</b></button>`).join('')}
@@ -355,7 +391,7 @@ function renderCust() {
     <div style="display:grid;gap:8px">
       <label class="field">ชื่อ (จาก LINE)<input data-set="name" value="${esc(c.name)}"></label>
       <label class="field">เบอร์โทร (ใช้ยืนยันตอนยกเลิก/เลื่อน)<input data-set="phone" inputmode="tel" placeholder="08x-xxx-xxxx" value="${esc(c.phone)}"></label></div>
-    <div class="warn" style="margin:0">⚠️ ร้านไม่รับสระผมที่ต่อผมทุกรูปแบบ เพื่อสุขอนามัยของลูกค้าทุกท่าน</div>
+    <div class="notice">⚠ ไม่รับสระผมต่อทุกรูปแบบ · เพื่อสุขอนามัยของลูกค้าทุกท่าน</div>
     <div class="sum"><span>${c.time !== null ? dayLabel(c.day) + ' · ' + fmt(c.time) : 'ยังไม่ได้เลือกเวลา'}<br><span class="small muted">${BR[c.br].name} · ${dur} นาที</span></span><b>${baht(priceOf(c.svc, c.addons, c.usePkg && c.svc === 's1'))}</b></div>
     <button class="primary" data-act="c-book" ${c.time !== null && phoneValid(c.phone) && !S.paused ? '' : 'disabled'}>ยืนยันการจอง</button>
   </div>`;
@@ -393,7 +429,7 @@ function renderKiosk() {
         }[b.status] || (b.pay ? `<span class="small muted">${PAY[b.pay.method]} ${baht(b.pay.amount)}</span>` : '');
         return `<div class="q ${b.status} ${b.status === 'done' ? 'past' : ''}">
           <div><div class="t">${fmt(b.start)}</div><div class="small muted">ถึง ${fmt(b.start + b.dur)}</div></div>
-          <div><div><b>${esc(b.name)}</b> <span class="src ${b.src}">${SRC[b.src]}</span></div>
+          <div><div><b>${esc(b.name)}</b> <span class="src s-${b.src}">${SRC[b.src]}</span></div>
             <div class="small muted">${svcLine(b)} · ${baht(b.price)}${b.pkg ? ' · ใช้แพ็กเกจ' : ''}</div>
             <div class="small"><span class="pill st-${b.status}">${STATUS[b.status]}</span> ${b.staff ? 'ช่าง: <b>' + staffName(b.staff) + '</b>' : ''}
             ${b.status === 'awaitpay' ? `<span class="muted"> · ${b.src === 'line' ? 'รอลูกค้าส่งสลิปในแชท LINE' : 'ลูกค้าไม่ได้จองทาง LINE ให้สแกนสลิปจาก iPad'}</span>` : ''}</div></div>
@@ -420,8 +456,8 @@ function openWalkin(svc = 's1', addons = []) {
   let start = null;
   for (let t = Math.ceil(NOW / 5) * 5; t < BR[S.kBr].close; t += 5) if (fits(S.kBr, 0, t, dur)) { start = t; break; }
   openSheet(`<h2>ลูกค้า Walk-in</h2>
-    <div>${Object.entries(SV).map(([k, s]) => `<label class="add"><input type="radio" name="wsvc" data-act="w-svc" data-k="${k}" ${k === svc ? 'checked' : ''}> ${s.name}<span class="r">${s.price}.- · ${s.min} นาที</span></label>`).join('')}</div>
-    <div>${SV[svc].addons.map(k => `<label class="add"><input type="checkbox" data-act="w-add" data-k="${k}" ${addons.includes(k) ? 'checked' : ''}> ${AD[k].name}<span class="r">+${AD[k].price}.-</span></label>`).join('')}</div>
+    <div>${Object.entries(SV).map(([k, s]) => `<label class="add"><input type="radio" name="wsvc" data-act="w-svc" data-k="${k}" ${k === svc ? 'checked' : ''}> ${s.name}<span class="lead"></span><span class="r">${s.price}.-</span></label>`).join('')}</div>
+    <div>${SV[svc].addons.map(k => `<label class="add"><input type="checkbox" data-act="w-add" data-k="${k}" ${addons.includes(k) ? 'checked' : ''}> ${AD[k].name}<span class="lead"></span><span class="r">+${AD[k].price}.-</span></label>`).join('')}</div>
     <div class="sum"><span>${start === null ? 'วันนี้ไม่มีช่วงว่างพอแล้ว' : 'เริ่มได้เร็วสุด <b>' + fmt(start) + '</b> (' + dur + ' นาที)'}</span><b>${baht(priceOf(svc, addons))}</b></div>
     <button class="primary" data-act="w-ok" data-svc="${svc}" data-addons="${addons.join(',')}" data-start="${start}" ${start === null ? 'disabled' : ''}>สร้างคิว แล้วเลือกช่าง</button>
     <button class="ghost" data-act="m-close">ปิด</button>`);
@@ -435,8 +471,8 @@ function openPhone() {
   openSheet(`<h2>เพิ่มคิวจากโทรศัพท์ / แชท</h2><div class="small muted">สาขา${BR[br].name} · ใช้ช่วงเวลาว่างชุดเดียวกับที่ลูกค้าจองผ่าน LINE</div>
     <label class="field">ชื่อลูกค้า<input data-pd="name" value="${esc(p.name)}"></label>
     <label class="field">เบอร์โทร<input data-pd="phone" inputmode="tel" value="${esc(p.phone)}" placeholder="08x-xxx-xxxx"></label>
-    <div>${Object.entries(SV).map(([k, s]) => `<label class="add"><input type="radio" name="psvc" data-act="pd-svc" data-k="${k}" ${k === p.svc ? 'checked' : ''}> ${s.name}<span class="r">${s.price}.-</span></label>`).join('')}</div>
-    <div>${SV[p.svc].addons.map(k => `<label class="add"><input type="checkbox" data-act="pd-add" data-k="${k}" ${p.addons.includes(k) ? 'checked' : ''}> ${AD[k].name}<span class="r">+${AD[k].price}.-</span></label>`).join('')}</div>
+    <div>${Object.entries(SV).map(([k, s]) => `<label class="add"><input type="radio" name="psvc" data-act="pd-svc" data-k="${k}" ${k === p.svc ? 'checked' : ''}> ${s.name}<span class="lead"></span><span class="r">${s.price}.-</span></label>`).join('')}</div>
+    <div>${SV[p.svc].addons.map(k => `<label class="add"><input type="checkbox" data-act="pd-add" data-k="${k}" ${p.addons.includes(k) ? 'checked' : ''}> ${AD[k].name}<span class="lead"></span><span class="r">+${AD[k].price}.-</span></label>`).join('')}</div>
     <div class="bigbtns" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
       <label class="field">วัน<select data-pdsel="day">${[0, 1, 2, 3, 4, 5, 6].map(d => `<option value="${d}" ${p.day === d ? 'selected' : ''}>${d === 0 ? 'วันนี้' : dayLabel(d)}</option>`).join('')}</select></label>
       <label class="field">เวลาที่ว่าง<select data-pdsel="time">${times.length ? times.map(t => `<option value="${t}" ${p.time === t ? 'selected' : ''}>${fmt(t)}</option>`).join('') : '<option>เต็มทั้งวัน</option>'}</select></label></div>
