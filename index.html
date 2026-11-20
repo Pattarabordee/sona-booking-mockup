@@ -768,11 +768,21 @@ function dSleep(ms) {
     tick();
   });
 }
+// bring the target into view inside any scrolling panel (the phone screen etc.), measured in that panel's own unscaled px
+function dReveal(t) {
+  for (let p = t.parentElement; p && p !== document.body; p = p.parentElement) {
+    if (!/(auto|scroll)/.test(getComputedStyle(p).overflowY) || p.scrollHeight <= p.clientHeight) continue;
+    const pr = p.getBoundingClientRect(), r = t.getBoundingClientRect(), k = pr.height / p.offsetHeight || 1;
+    const off = r.height / k > p.clientHeight ? (r.top - pr.top) / k - 12 : (r.top + r.height / 2 - pr.top - pr.height / 2) / k;
+    p.scrollTop += off;
+  }
+}
 function dZoom(target, z) {
   const m = $('main');
   const zz = innerWidth > 860 ? z : 1;
   const prev = m.style.transform;
   m.style.transition = 'none'; m.style.transform = 'none';
+  dReveal(target);
   const r = target.getBoundingClientRect(), mr = m.getBoundingClientRect();
   m.style.transform = prev; void m.offsetWidth;
   m.style.transition = 'transform .55s cubic-bezier(.2,.7,.2,1)';
