@@ -107,13 +107,14 @@ const DEVICES = [
   ]],
 ];
 
+const LEAN = new URLSearchParams(location.search).has('lean'); // ?lean checks the lean version
 const MIN_TEXT = 10; // smallest text allowed on screen, CSS px after the device frame is scaled
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function load(w, h) {
   return new Promise(res => {
     const f = document.createElement('iframe');
-    f.width = w; f.height = h; f.src = 'index.html?try&dev=' + Date.now();
+    f.width = w; f.height = h; f.src = 'index.html?try' + (LEAN ? '&lean=1' : '') + '&dev=' + Date.now();
     f.onload = () => res(f);
     document.getElementById('stage').appendChild(f);
   });
@@ -216,26 +217,26 @@ async function demo(w, h) {
     const rot = d.getElementById('dRotate'), shown = rot && win.getComputedStyle(rot).display !== 'none';
     const waiting = win.eval('D.i') === 0 && d.getElementById('dSpot').dataset.step === undefined;
     clearInterval(mon); f.remove();
-    return { fails: shown && waiting ? [] : ['แนวนอน: ไม่ขึ้นหน้าบอกให้หมุนจอ'], seen: 26, rotate: true };
+    return { fails: shown && waiting ? [] : ['แนวนอน: ไม่ขึ้นหน้าบอกให้หมุนจอ'], seen: 1, total: 1, rotate: true };
   }
   const t0 = Date.now(), done = () => /จบเดโม/.test(d.getElementById('dCap')?.textContent || '');
   while (!done() && Date.now() - t0 < 60000) await sleep(50);
   clearInterval(mon);
   if (!done()) fails.push(`เดโมไม่จบ (ค้างที่ขั้น ${last + 1})`);
   if (d.documentElement.scrollWidth > d.documentElement.clientWidth + 1) fails.push('หน้าล้นออกด้านข้างระหว่างเดโม');
-  f.remove();
-  return { fails, seen };
+  const total = win.eval('DEMO.length'); f.remove();
+  return { fails, seen, total };
 }
 
 function render(name, w, h, note, ho, dm) {
   const small = ho.minFont < MIN_TEXT;
-  const okHands = !ho.issues.length && !small, okDemo = !dm.fails.length && dm.seen === 26;
+  const okHands = !ho.issues.length && !small, okDemo = !dm.fails.length && dm.seen === dm.total;
   const det = [...ho.issues, ...dm.fails];
   if (small) det.push(`ตัวอักษรเล็กเกินอ่าน: ${ho.minAt}`);
   const tr = document.createElement('tr');
   tr.innerHTML = `<td>${name}</td><td class="r">${w}×${h}<br><span class="mu">${note}</span></td>
     <td class="${okHands ? 'ok' : 'bad'}">${okHands ? 'ผ่าน' : 'ไม่ผ่าน'}</td>
-    <td class="r ${okDemo ? 'ok' : 'bad'}">${okDemo ? 'ผ่าน' : 'ไม่ผ่าน'} ${dm.rotate ? '· ขึ้นให้หมุนจอ' : dm.seen + '/26'}</td>
+    <td class="r ${okDemo ? 'ok' : 'bad'}">${okDemo ? 'ผ่าน' : 'ไม่ผ่าน'} ${dm.rotate ? '· ขึ้นให้หมุนจอ' : dm.seen + '/' + dm.total}</td>
     <td class="r ${small ? 'bad' : ''}">${ho.minFont.toFixed(1)}px<br><span class="mu">กรอบมือถือ ${Math.round(ho.phoneK * 100)}% · iPad ${Math.round(ho.tabK * 100)}%</span></td>
     <td>${det.length ? det.join('<br>') : '—'}</td>`;
   document.getElementById('rows').appendChild(tr);
@@ -245,7 +246,7 @@ function render(name, w, h, note, ho, dm) {
 // never start on open: each run loads up to 73 full-size copies of the mockup, which is heavy.
 // ?g=N&run starts group N; the buttons do the same.
 const Q = new URLSearchParams(location.search);
-document.getElementById('pick').innerHTML = DEVICES.map((g, i) => `<button type="button" onclick="location.search='?g=${i}&run'">${g[0].split(' (')[0]}</button>`).join(' ');
+document.getElementById('pick').innerHTML = DEVICES.map((g, i) => `<button type="button" onclick="location.search='?g=${i}&run${LEAN ? '&lean' : ''}'">${g[0].split(' (')[0]}</button>`).join(' ');
 if (Q.has('run')) (async () => {
   const only = Q.get('g');
   const groups = only === null ? DEVICES : [DEVICES[+only]];

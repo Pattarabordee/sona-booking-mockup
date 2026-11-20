@@ -332,6 +332,57 @@ test('Log บันทึกทุกการกระทำ (จอง, เช
     ok(a.includes(want), 'log ต้องมี "' + want + '"');
   ok(E('S.log.every(l => l.at && l.who && l.act && l.br)'), 'ทุกแถวต้องมีเวลา/ผู้ทำ/รายการ/สาขา');
 });
+test('ทำเสร็จและรับเงินแล้ว → ช่างว่างทันที ไม่ต้องรอถึงเวลาจบที่จองไว้', ({ E, click }) => {
+  ok(!E("fits('s62',0,800,40)"), 'ก่อนรับเงิน 13:20 ต้องยังเต็ม');
+  const id = E("S.bookings.find(b => b.name==='คุณจูน').id");
+  click(`[data-act="k-pay"][data-id="${id}"]`); click('[data-act="p-method"][data-m="cash"]');
+  ok(E("fits('s62',0,800,40)"), 'รับเงินคุณจูนแล้ว 13:20 ต้องว่าง 1 ที่');
+});
+
+/* ---- lean version ---- */
+test('แบบลีน: ลูกค้าเก่าจองได้ใน 3 แตะ ด้วยสาขา/บริการ/เบอร์จากครั้งก่อน', ({ E, click }) => {
+  E('setMode(true)');
+  click('[data-act="c-open"]'); click('.slot[data-t="1020"]'); click('[data-act="c-book"]');
+  const b = E('S.c.last');
+  eq([b.br, b.svc, b.addons, b.phone, b.status], ['s62', 's1', [], '0812345678', 'unassigned'], 'คิวที่ได้');
+});
+test('แบบลีน: แตะชื่อช่าง = รับงานและเริ่มทำ และ log มีชื่อช่าง (ไม่ใช้ PIN)', ({ E, click }) => {
+  E('setMode(true)');
+  const id = E("S.bookings.find(b => b.name==='คุณออม').id");
+  click(`[data-act="l-go"][data-id="${id}"][data-s="2"]`);
+  const b = E(`find('${id}')`);
+  eq([b.status, b.staff], ['inprog', 2], 'สถานะ/ช่าง');
+  ok(E(`S.log.some(l => l.act==='รับงาน' && l.detail.includes('${id}') && l.detail.includes('ฝน'))`), 'log รับงานพร้อมชื่อช่าง');
+});
+test('แบบลีน: ช่างที่ติดลูกค้าช่วงเดียวกันแตะไม่ได้', ({ E, q }) => {
+  E('setMode(true)');
+  const id = E("S.bookings.find(b => b.name==='คุณออม').id");
+  ok(q(`[data-act="l-go"][data-id="${id}"][data-s="1"]`).disabled, 'เมย์ติดคุณกิ๊ฟ 14:00 ต้องแตะไม่ได้');
+});
+test('แบบลีน: รับเงินสด/โอนบนแถวคิว และยังเตือนสแกน QR สะสมแต้ม', ({ E, click, q }) => {
+  E('setMode(true)');
+  const [a, b] = E("S.bookings.filter(b => b.br==='s62' && b.status==='inprog').map(b => b.id)");
+  click(`[data-act="p-method"][data-m="cash"][data-id="${a}"]`);
+  eq([E(`find('${a}').status`), E(`find('${a}').pay.method`)], ['done', 'cash'], 'เงินสด');
+  ok(/สะสมแต้ม/.test(q('#toast').textContent), 'ต้องเตือนสแกน QR สะสมแต้ม');
+  click(`[data-act="p-method"][data-m="transfer"][data-id="${b}"]`);
+  eq(E(`find('${b}').status`), 'awaitpay', 'โอน → รอสลิป');
+});
+test('แบบลีน: Walk-in แตะชื่อช่างได้เฉพาะตอนมีที่ว่าง', ({ E, click }) => {
+  E('setMode(true)');
+  eq(E(`document.querySelectorAll('[data-act="l-walk"]:not([disabled])').length`), 0, 'คิวเต็มต้องแตะไม่ได้');
+  const id = E("S.bookings.find(b => b.name==='คุณจูน').id");
+  click(`[data-act="p-method"][data-m="cash"][data-id="${id}"]`);
+  const n = E('S.bookings.length');
+  click('[data-act="l-walk"][data-s="2"]');
+  const w = E('S.bookings[S.bookings.length-1]');
+  eq([E('S.bookings.length'), w.status, w.staff, w.src, w.start], [n + 1, 'inprog', 2, 'walk', 800], 'คิว walk-in');
+});
+test('สลับแบบเต็ม/ลีน ข้อมูลไม่หาย', ({ E, book }) => {
+  const b = book({ time: 1020 }); const n = E('S.bookings.length');
+  E('setMode(true)'); E('setMode(false)');
+  eq([E('S.bookings.length'), E(`find('${b.id}').status`)], [n, 'unassigned'], 'คิวยังอยู่');
+});
 
 (async () => {
   const tb = document.getElementById('t');

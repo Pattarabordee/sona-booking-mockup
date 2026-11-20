@@ -211,6 +211,15 @@ main.demo{transform-origin:0 0;will-change:transform}
 #dCap .ctl button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 14px;font-size:13.5px}
 #dCap .ctl button.go{background:var(--olive-d);color:#fff;border-color:var(--olive-d)}
 #dCap .ctl .sp{flex:1}
+/* full / lean switch */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:2px;background:#fff}
+.nav .seg button{border:0;padding:5px 12px;font-size:13.5px}
+body.lean .only-full,body:not(.lean) .only-lean{display:none}
+.btn-s:disabled{opacity:.4;cursor:not-allowed}
+.prev{display:grid;gap:3px}
+.linkbtn{border:0;background:none;color:var(--olive-d);text-decoration:underline;text-underline-offset:3px;padding:2px 0;font-size:13px;justify-self:start}
+.who{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.who .lbl{font-size:12px;color:var(--muted);width:100%;text-align:right}
 </style>
 </head>
 <body>
@@ -220,6 +229,7 @@ main.demo{transform-origin:0 0;will-change:transform}
     <button data-v="cust" class="on">ลูกค้า (LINE)</button>
     <button data-v="kiosk">iPad หน้าร้าน <span id="navBadge"></span></button>
     <button data-v="owner">เจ้าของร้าน</button>
+    <span class="seg" role="group" aria-label="รูปแบบ"><button data-mode="full">แบบเต็ม</button><button data-mode="lean">แบบลีน</button></span>
     <button class="demo-btn" id="demoBtn">▶ ดูเดโม</button>
   </nav>
 </header>
@@ -228,7 +238,13 @@ main.demo{transform-origin:0 0;will-change:transform}
     <div class="devwrap"><div class="phone"><div class="scr"><div class="sbar"><span>9:41</span><span><svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.3A10.6 10.6 0 0 0 8 .4C5.1.4 2.5 1.5.5 3.4l1.2 1.3A8.9 8.9 0 0 1 8 2.2Zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.2-1.3A7.1 7.1 0 0 0 8 4 7.1 7.1 0 0 0 3.1 5.9l1.2 1.3c1-.9 2.3-1.4 3.7-1.4Zm0 3.6c.5 0 1 .2 1.3.5L8 11.4 6.7 9.9c.3-.3.8-.5 1.3-.5Z"/></svg><svg viewBox="0 0 27 12" fill="none" stroke="currentColor"><rect x=".5" y=".5" width="22" height="11" rx="3.5" opacity=".45"/><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor" stroke="none"/><path d="M24.5 4v4" stroke-width="1.6" opacity=".45"/></svg></span></div><div id="custApp"></div></div><div class="island"></div><div class="homebar"></div></div></div>
     <aside class="card note">
       <h3>ลองกดตามนี้</h3>
-      <ul>
+      <ul class="only-lean">
+        <li><b>แบบลีน</b>: ลูกค้าเก่าจองได้ใน 3 แตะ · <b>จองคิว</b> → เลือกเวลา → ยืนยัน (ระบบจำสาขา บริการ และเบอร์จากครั้งก่อน)</li>
+        <li>ไปแท็บ <b>iPad หน้าร้าน</b> พอลูกค้ามาถึง กด <b>ชื่อช่าง</b> บนแถวคิว = จ่ายงานและเริ่มทำทันที</li>
+        <li>ทำเสร็จ กด <b>เงินสด</b> หรือ <b>โอน</b> บนแถวเดียวกัน ถ้าโอน ให้กลับมาแท็บนี้ กด <b>ส่งรูปสลิป</b> ในแชท</li>
+        <li>Walk-in: กดชื่อช่างที่ว่างในกล่อง Walk-in ได้คิวและเริ่มทำเลย</li>
+      </ul>
+      <ul class="only-full">
         <li>ในแชท LINE กดปุ่ม <b>จองคิว</b> บน Rich menu แล้วจองคิว "วันนี้" ข้อความยืนยันจะเข้าแชทเดิม</li>
         <li>ไปแท็บ <b>iPad หน้าร้าน</b> จะเห็นคิวใหม่พร้อมกระดิ่ง ลองจ่ายงาน → เริ่มทำ → รับเงิน → เลือก "โอน"</li>
         <li>กลับมาแท็บนี้ กด <b>ส่งรูปสลิป</b> ในแชท ระบบตรวจสลิปและปิดคิวให้เอง</li>
@@ -290,7 +306,10 @@ const S = {
   ],
   defaultCap: 2, buffer: 0, cutoffH: 2, paused: false, unread: 0, seq: 1021, slipSeq: 0,
   kBr: 's62', oBr: 'all', bookings: [], log: [], pd: null,
+  lean: false, // lean version: fewer taps for returning customers and staff
   c: { screen: 'chat', br: 's62', svc: 's1', addons: [], day: 0, time: null, name: 'คุณมิ้นท์', phone: '', usePkg: false, last: null, mine: [],
+       prev: { br: 's62', svc: 's1', addons: [], phone: '0812345678' }, // what LINE remembers from this customer's last visit
+       more: false, editPhone: false,
        msgs: [{ from: 'shop', html: 'สวัสดีค่ะ 😊 จองคิวได้เองตลอด 24 ชม. กดปุ่ม <b>จองคิว</b> ด้านล่างได้เลยค่ะ<br><br>📍 สุขุมวิท 62/1 หน้า 7-11 (10.00–21.00)<br>📍 แฟชั่นไอซ์แลนด์ หน้าคลินิก Ldc (09.00–20.00)' }] },
 };
 
@@ -335,7 +354,8 @@ function seedPay(b, method) {
 })();
 
 const active = b => b.status !== 'cancelled' && b.status !== 'noshow';
-const load = (br, day, t) => S.bookings.filter(b => b.br === br && b.day === day && active(b) && b.start <= t && t < b.start + b.dur + S.buffer).length;
+// a finished (paid) queue frees its stylist from now on, even if it ended earlier than booked
+const load = (br, day, t) => S.bookings.filter(b => b.br === br && b.day === day && active(b) && !(b.status === 'done' && day === 0 && t >= NOW) && b.start <= t && t < b.start + b.dur + S.buffer).length;
 const cap = (br, day) => day === 0 ? S.staff.filter(s => s.br === br && s.on).length : S.defaultCap;
 function fits(br, day, start, dur) {
   const B = BR[br];
@@ -411,6 +431,24 @@ function renderCustScreen() {
   const dur = durOf(c.svc, c.addons), B = BR[c.br];
   let slots = '';
   for (let t = B.open; t < B.close; t += 30) slots += `<button class="slot ${c.time === t ? 'on' : ''}" data-act="c-time" data-t="${t}" ${slotOk(c.br, c.day, t, dur) ? '' : 'disabled'}>${fmt(t)}</button>`;
+  const days = `<div class="days">${[0, 1, 2, 3, 4, 5, 6].map(d => `<button class="day ${c.day === d ? 'on' : ''}" data-act="c-day" data-d="${d}">${d === 0 ? 'วันนี้' : dayLabel(d).split(' ')[0]}<br><b>${dayLabel(d).split(' ')[1]}</b></button>`).join('')}</div>`;
+  const slotBox = S.paused ? '<div class="warn">ร้านปิดรับจองออนไลน์ชั่วคราว กรุณาทักแชทหรือโทรหาร้าน</div>' : `<div class="slots">${slots}</div><div class="small muted" style="margin-top:6px">ช่วงที่ขีดฆ่า = คิวเต็ม หรือเวลาไม่พอก่อนร้านปิด</div>`;
+  const price = priceOf(c.svc, c.addons, c.usePkg && c.svc === 's1');
+  if (S.lean && !c.more) {
+    // lean: last visit's branch, service and phone are already filled in, so a returning customer only picks a time
+    const known = phoneValid(c.phone) && !c.editPhone;
+    el.innerHTML = head(true) + `<div class="ph-body">
+      <div class="card prev"><div class="small muted">จองแบบครั้งก่อน</div><b>${svcLine({ svc: c.svc, addons: c.addons })}</b>
+        <div class="small">สาขา${B.name} · ${dur} นาที · ${baht(price)}</div>
+        <button class="linkbtn" data-act="c-more">เปลี่ยนสาขา / บริการ / Add-on</button></div>
+      <div><div class="sec-t">เลือกวันและเวลา</div>${days}<div style="margin-top:8px">${slotBox}</div></div>
+      ${known ? `<div class="small muted">ยืนยันด้วยเบอร์ ${c.phone.replace(/\D/g, '').replace(/^(\d{3})\d+(\d{4})$/, '$1-xxx-$2')} <button class="linkbtn" data-act="c-editphone">แก้</button></div>`
+        : `<label class="field">เบอร์โทร (กรอกครั้งแรกครั้งเดียว)<input data-set="phone" inputmode="tel" placeholder="08x-xxx-xxxx" value="${esc(c.phone)}"></label>`}
+      <div class="notice">⚠ ไม่รับสระผมต่อทุกรูปแบบ · เพื่อสุขอนามัยของลูกค้าทุกท่าน</div>
+      <button class="primary" data-act="c-book" ${c.time !== null && phoneValid(c.phone) && !S.paused ? '' : 'disabled'}>${c.time !== null ? `ยืนยันจอง ${dayLabel(c.day)} ${fmt(c.time)} · ${baht(price)}` : 'เลือกเวลาก่อน'}</button>
+    </div>`;
+    return;
+  }
   el.innerHTML = head(true) + `<div class="ph-body">
     <div><div class="sec-t">1. เลือกสาขา</div><div class="brs">
       ${Object.entries(BR).map(([k, b]) => `<button class="${c.br === k ? 'on' : ''}" data-act="c-br" data-k="${k}"><b>${b.name}</b><br><span class="small muted">${fmt(b.open)}–${fmt(b.close)}</span></button>`).join('')}</div></div>
@@ -422,16 +460,13 @@ function renderCustScreen() {
     <div><div class="sec-t"><span>3. <span class="tagpill">ADD-ON</span> บริการเสริม</span></div><div class="card" style="padding:4px 12px">
       ${SV[c.svc].addons.map(k => `<label class="add"><input type="checkbox" data-act="c-add" data-k="${k}" ${c.addons.includes(k) ? 'checked' : ''}> <span class="nm">${AD[k].name}<small>${AD[k].min ? '+' + AD[k].min + ' นาที' : 'ไม่เพิ่มเวลา'}</small></span><span class="lead"></span><span class="r">+${AD[k].price}.-</span></label>`).join('')}
     </div></div>
-    <div><div class="sec-t">4. เลือกวัน</div><div class="days">
-      ${[0, 1, 2, 3, 4, 5, 6].map(d => `<button class="day ${c.day === d ? 'on' : ''}" data-act="c-day" data-d="${d}">${d === 0 ? 'วันนี้' : dayLabel(d).split(' ')[0]}<br><b>${dayLabel(d).split(' ')[1]}</b></button>`).join('')}
-    </div></div>
-    <div><div class="sec-t"><span>5. เลือกเวลา</span><span class="small muted">ใช้เวลารวม ${dur} นาที</span></div>
-      ${S.paused ? '<div class="warn">ร้านปิดรับจองออนไลน์ชั่วคราว กรุณาทักแชทหรือโทรหาร้าน</div>' : `<div class="slots">${slots}</div><div class="small muted" style="margin-top:6px">ช่วงที่ขีดฆ่า = คิวเต็ม หรือเวลาไม่พอก่อนร้านปิด</div>`}</div>
+    <div><div class="sec-t">4. เลือกวัน</div>${days}</div>
+    <div><div class="sec-t"><span>5. เลือกเวลา</span><span class="small muted">ใช้เวลารวม ${dur} นาที</span></div>${slotBox}</div>
     <div style="display:grid;gap:8px">
       <label class="field">ชื่อ (จาก LINE)<input data-set="name" value="${esc(c.name)}"></label>
       <label class="field">เบอร์โทร (ใช้ยืนยันตอนยกเลิก/เลื่อน)<input data-set="phone" inputmode="tel" placeholder="08x-xxx-xxxx" value="${esc(c.phone)}"></label></div>
     <div class="notice">⚠ ไม่รับสระผมต่อทุกรูปแบบ · เพื่อสุขอนามัยของลูกค้าทุกท่าน</div>
-    <div class="sum"><span>${c.time !== null ? dayLabel(c.day) + ' · ' + fmt(c.time) : 'ยังไม่ได้เลือกเวลา'}<br><span class="small muted">${BR[c.br].name} · ${dur} นาที</span></span><b>${baht(priceOf(c.svc, c.addons, c.usePkg && c.svc === 's1'))}</b></div>
+    <div class="sum"><span>${c.time !== null ? dayLabel(c.day) + ' · ' + fmt(c.time) : 'ยังไม่ได้เลือกเวลา'}<br><span class="small muted">${BR[c.br].name} · ${dur} นาที</span></span><b>${baht(price)}</b></div>
     <button class="primary" data-act="c-book" ${c.time !== null && phoneValid(c.phone) && !S.paused ? '' : 'disabled'}>ยืนยันการจอง</button>
   </div>`;
 }
@@ -440,6 +475,24 @@ function renderCustScreen() {
 function busyOverlap(staffId, b) {
   return S.bookings.find(o => o !== b && o.day === b.day && o.staff === staffId && (o.status === 'booked' || o.status === 'inprog')
     && o.start < b.start + b.dur && b.start < o.start + o.dur);
+}
+// lean iPad: one tap on a stylist's name = assign + start (no PIN); pay straight from the row
+const onDuty = br => S.staff.filter(s => s.br === br && s.on);
+const leanGo = b => `<div class="who"><span class="lbl">ลูกค้ามาถึง กดชื่อช่าง</span>${onDuty(b.br).map(s => {
+  const busy = busyOverlap(s.id, b);
+  return `<button class="btn-s go" data-act="l-go" data-id="${b.id}" data-s="${s.id}" ${busy ? 'disabled title="ติดลูกค้า"' : ''}>${s.name}</button>`;
+}).join('')}<button class="btn-s" data-act="k-st" data-st="noshow" data-id="${b.id}">ไม่มา</button></div>`;
+const leanPay = b => b.price === 0
+  ? `<button class="btn-s pay" data-act="p-method" data-m="package" data-id="${b.id}">ปิดคิว (รางวัลฟรี)</button>`
+  : `<button class="btn-s pay" data-act="p-method" data-m="cash" data-id="${b.id}">💵 เงินสด</button><button class="btn-s pay" data-act="p-method" data-m="transfer" data-id="${b.id}">📲 โอน</button>`;
+function walkBox(br) {
+  const start = Math.ceil(NOW / 5) * 5, dur = durOf('s1', []), open = fits(br, 0, start, dur);
+  return `<div class="card" id="walkBox"><h3>Walk-in · ${SV.s1.name} ${dur} นาที</h3>
+    ${open ? `<div class="chips">${onDuty(br).map(s => { const busy = busyOverlap(s.id, { day: 0, start, dur });
+      return `<button class="chip" data-act="l-walk" data-s="${s.id}" ${busy ? 'disabled' : ''}>${s.name}${busy ? ' · ติดลูกค้า' : ''}</button>`; }).join('')}</div>
+      <p class="small muted" style="margin:6px 0 0">กดชื่อช่างที่ว่าง = สร้างคิวและเริ่มทำเลย</p>`
+      : `<p class="small" style="margin:0">ตอนนี้คิวเต็ม เริ่มทำทันทีไม่ได้</p>`}
+    <button class="linkbtn" data-act="k-walkin">บริการอื่น / เลือกเวลาเอง</button></div>`;
 }
 function renderKiosk() {
   const br = S.kBr;
@@ -454,16 +507,16 @@ function renderKiosk() {
       <div class="card"><h3>ช่างที่มาทำงานวันนี้</h3><div class="chips">
         ${S.staff.filter(s => s.br === br).map(s => `<button class="chip ${s.on ? 'on' : ''}" data-act="k-staff" data-id="${s.id}">${s.on ? '✓ ' : ''}${s.name}</button>`).join('')}</div>
         <p class="small" style="margin:8px 0 0">รับคิวซ้อนกันได้สูงสุด <b>${cap(br, 0)}</b> คิว/ช่วงเวลา</p></div>
-      <button class="primary" data-act="k-walkin">+ ลูกค้า Walk-in</button>
+      ${S.lean ? walkBox(br) : '<button class="primary" data-act="k-walkin">+ ลูกค้า Walk-in</button>'}
       <button class="primary" style="background:#4E6E8E" data-act="k-phone">+ คิวจากโทรศัพท์ / แชท</button>
       <div class="card"><h3>สรุปวันนี้</h3>${counts.map(([k, n]) => `<div class="row small"><span class="pill st-${k}">${STATUS[k]}</span><b>${n}</b></div>`).join('')}</div>
     </div><div>
       ${overloads(br).map(([a, b]) => `<div class="warn">⚠️ ช่วง <b>${fmt(a)}–${fmt(b)}</b> มีคิวมากกว่าช่างที่มาทำงาน (${cap(br, 0)} คน) · ระบบปิดรับจองช่วงนี้แล้ว กรุณาโทรขอเลื่อนเวลาลูกค้า</div>`).join('')}
       ${today.map(b => {
         const acts = {
-          unassigned: `<button class="btn-s go" data-act="k-assign" data-id="${b.id}">จ่ายงาน</button><button class="btn-s" data-act="k-st" data-st="noshow" data-id="${b.id}">ไม่มา</button>`,
+          unassigned: S.lean ? leanGo(b) : `<button class="btn-s go" data-act="k-assign" data-id="${b.id}">จ่ายงาน</button><button class="btn-s" data-act="k-st" data-st="noshow" data-id="${b.id}">ไม่มา</button>`,
           booked: `<button class="btn-s go" data-act="k-st" data-st="inprog" data-id="${b.id}">เริ่มทำ</button><button class="btn-s" data-act="k-st" data-st="noshow" data-id="${b.id}">ไม่มา</button>`,
-          inprog: `<button class="btn-s pay" data-act="k-pay" data-id="${b.id}">รับเงิน</button>`,
+          inprog: S.lean ? leanPay(b) : `<button class="btn-s pay" data-act="k-pay" data-id="${b.id}">รับเงิน</button>`,
           awaitpay: `<button class="btn-s pay" data-act="k-scan" data-id="${b.id}">สแกนสลิป</button><button class="btn-s" data-act="k-cash" data-id="${b.id}">จ่ายเงินสดแทน</button>`,
         }[b.status] || (b.pay ? `<span class="small muted">${PAY[b.pay.method]} ${baht(b.pay.amount)}</span>` : '');
         return `<div class="q ${b.status} ${b.status === 'done' ? 'past' : ''}">
@@ -619,9 +672,31 @@ function setStatus(b, st, who) { logEv(stamp(), b.br, who, 'เปลี่ย�
 document.addEventListener('click', e => {
   const v = e.target.closest('[data-v]');
   if (v) { document.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === v)); document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === v.dataset.v)); scrollTo(0, 0); return; }
+  const md = e.target.closest('[data-mode]');
+  if (md) { if (!D.on) setMode(md.dataset.mode === 'lean'); return; }
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   const a = el.dataset.act, c = S.c;
-  if (a === 'c-open') { c.screen = 'book'; c.time = null; }
+  if (a === 'c-open') {
+    c.screen = 'book'; c.time = null; c.more = false; c.editPhone = false;
+    if (S.lean) { c.br = c.prev.br; c.svc = c.prev.svc; c.addons = [...c.prev.addons]; c.usePkg = false; if (!phoneValid(c.phone)) c.phone = c.prev.phone; }
+  }
+  else if (a === 'c-more') c.more = true;
+  else if (a === 'c-editphone') c.editPhone = true;
+  else if (a === 'l-go') {
+    const b = find(el.dataset.id), sid = +el.dataset.s; b.staff = sid;
+    logEv(stamp(), b.br, kioskWho(b.br), 'รับงาน', `${b.id} ${b.name} ${fmt(b.start)} → ${staffName(sid)} (แบบลีน ไม่ใช้ PIN)`);
+    setStatus(b, 'inprog', 'ระบบ'); toast(`${staffName(sid)} เริ่มทำ ${esc(b.name)}`);
+  }
+  else if (a === 'l-walk') {
+    const start = Math.ceil(NOW / 5) * 5, sid = +el.dataset.s;
+    if (!fits(S.kBr, 0, start, durOf('s1', [])) || busyOverlap(sid, { day: 0, start, dur: durOf('s1', []) })) toast('ตอนนี้คิวเต็ม หรือช่างติดลูกค้า', true);
+    else {
+      const b = mk(S.kBr, 0, start, 's1', [], 'inprog', sid, 'Walk-in', 'walk'); S.bookings.push(b);
+      logEv(stamp(), b.br, kioskWho(b.br), 'สร้างคิว Walk-in', `${b.id} ${fmt(b.start)} · ${svcLine(b)} · ${baht(b.price)}`);
+      logEv(stamp(), b.br, kioskWho(b.br), 'รับงาน', `${b.id} Walk-in → ${staffName(sid)} (แบบลีน ไม่ใช้ PIN)`);
+      toast(`${staffName(sid)} เริ่มทำ Walk-in ${b.id}`);
+    }
+  }
   else if (a === 'c-chat') c.screen = 'chat';
   else if (a === 'c-myq') c.screen = 'myq';
   else if (a === 'c-br') { c.br = el.dataset.k; c.time = null; }
@@ -634,7 +709,7 @@ document.addEventListener('click', e => {
     else {
       const b = mk(c.br, c.day, c.time, c.svc, [...c.addons], 'unassigned', null, c.name.trim() || 'ลูกค้า LINE', 'line', c.usePkg && c.svc === 's1', c.phone);
       S.bookings.push(b); c.mine.push(b); c.last = b; c.screen = 'done';
-      c.usePkg = false;
+      c.usePkg = false; c.prev = { br: b.br, svc: b.svc, addons: [...b.addons], phone: c.phone };
       logEv(stamp(), b.br, b.name + ' (LINE)', 'จองคิว', `${b.id} ${dayLabel(b.day)} ${fmt(b.start)} · ${svcLine(b)} · ${baht(b.price)}`);
       c.msgs.push({ from: 'me', html: `จองคิว ${b.id}` });
       c.msgs.push({ from: 'shop', flex: true, html: `<div class="fh">✓ ยืนยันการจอง ${b.id}</div><div class="fb">${dayLabel(b.day)} · ${fmt(b.start)}–${fmt(b.start + b.dur)}<br>สาขา${BR[b.br].name}<br>${svcLine(b)}<br><b>${baht(b.price)}</b> ชำระที่ร้าน</div>` });
@@ -690,6 +765,7 @@ document.addEventListener('click', e => {
     if (m === 'transfer') { logEv(stamp(), b.br, kioskWho(b.br), 'เลือกชำระแบบโอน', `${b.id} ${b.name} ${baht(b.price)}`); setStatus(b, 'awaitpay', 'ระบบ'); }
     else { b.pay = { method: m, amount: b.price, ref: '' }; logEv(stamp(), b.br, kioskWho(b.br), m === 'cash' ? 'รับเงินสด' : 'ใช้รางวัลสะสมแต้ม', `${b.id} ${b.name} ${baht(b.price)}`); setStatus(b, 'done', 'ระบบ'); }
     closeSheet();
+    if (S.lean && m !== 'package') toast('📱 อย่าลืมให้ลูกค้าสแกน QR สะสมแต้มในบัตร LINE'); // lean pays on the row, so the pay sheet's reminder moves here
   }
   else if (a === 's-res') {
     const b = find(el.dataset.id), r = applySlip(b, el.dataset.r, kioskWho(b.br) + ' (สแกนสลิป)');
@@ -738,14 +814,25 @@ console.assert(!fits('s62', 0, 1230, 40), '20:30 + 40 min runs past 21:00');
 console.assert(fits('s62', 0, 1200, 40), '20:00 should be free');
 console.assert(!fits('fi', 0, 1170, 40), 'Fashion Island closes at 20:00');
 console.assert(fits('fi', 1, 540, 40), 'Fashion Island opens 09:00');
+function setMode(lean) {
+  S.lean = lean;
+  document.body.classList.toggle('lean', lean);
+  document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', (b.dataset.mode === 'lean') === lean));
+  const u = new URL(location.href);
+  if (lean) u.searchParams.set('lean', '1'); else u.searchParams.delete('lean');
+  history.replaceState(null, '', u);
+  S.c.screen = 'chat'; S.c.more = false; S.c.editPhone = false; closeSheet();
+  renderAll();
+}
+const modeQ = () => (S.lean ? 'lean=1' : ''); // carried across demo / try-it reloads
 fitDevices();
-renderAll();
+setMode(new URLSearchParams(location.search).has('lean'));
 
 /* ---------- guided demo (storyboard) ---------- */
 const D = { on: false, paused: false, skip: false, i: 0 };
 const lastFlex = () => [...document.querySelectorAll('#custApp .bub.flex')].pop();
 const myId = () => S.c.last && S.c.last.id;
-const DEMO = [
+const DEMO_FULL = [
   { v: 'cust', t: '.phone', z: 1, title: 'ลูกค้าเข้า LINE ของร้านเหมือนเดิม', text: 'ไม่ต้องโหลดแอปใหม่ ไม่ต้องสมัครสมาชิก ลูกค้าเห็นปุ่ม "จองคิว" บน Rich menu ทันที' },
   { v: 'cust', t: '[data-act="c-open"]', z: 1.25, click: 1, title: 'กด "จองคิว"', text: 'หน้าจองเปิดในแอป LINE เลย ระบบรู้ชื่อลูกค้าจาก LINE ให้อัตโนมัติ' },
   { v: 'cust', t: '[data-act="c-br"][data-k="s62"]', z: 1.4, click: 1, title: 'เลือกสาขา', text: 'แต่ละสาขามีเวลาเปิด-ปิดของตัวเอง ระบบคิดเวลาว่างแยกกัน' },
@@ -773,6 +860,27 @@ const DEMO = [
   { v: 'owner', t: '.kpis', z: 1.1, title: 'เจ้าของร้านเห็นยอดทันที', text: 'แยกเงินสด/โอน แยกสาขา และแยกรายช่าง' },
   { v: 'owner', t: () => [...document.querySelectorAll('#ownerApp > .card')].pop(), z: 1, title: 'ทุกการกระทำถูกบันทึกไว้', text: 'ใครทำอะไร เมื่อไร แก้ไขหรือลบไม่ได้ ตรวจสอบย้อนหลังได้ทุกเมื่อ' },
 ];
+// lean storyboard: same flow, fewer taps (returning customer, stylist name = assign + start, pay on the row)
+const myRow = sel => () => document.querySelector(`${sel}[data-id="${myId()}"]`);
+const DEMO_LEAN = [
+  { v: 'cust', t: '.phone', z: 1, title: 'แบบลีน: กดน้อยที่สุด', text: 'ลูกค้าเก่าจองได้ใน 3 แตะ ช่างกดแค่ชื่อตัวเองกับปุ่มรับเงิน' },
+  { v: 'cust', t: '[data-act="c-open"]', z: 1.25, click: 1, title: 'แตะ 1: "จองคิว"', text: 'เปิดหน้าจองในแอป LINE เลย ไม่ต้องโหลดแอปใหม่' },
+  { v: 'cust', t: '.prev', z: 1.35, title: 'ระบบจำการจองครั้งก่อนไว้ให้', text: 'สาขา บริการ และเบอร์โทรเติมไว้แล้ว อยากเปลี่ยนกดลิงก์นี้ ลูกค้าใหม่กรอกเบอร์แค่ครั้งแรก' },
+  { v: 'cust', t: '.slot[data-t="1020"]', z: 1.4, click: 1, title: 'แตะ 2: เลือกเวลา 17:00', text: 'ช่องที่ขีดฆ่าคือคิวเต็มตามจำนวนช่างที่มาทำงาน' },
+  { v: 'cust', t: '[data-act="c-book"]', z: 1.35, click: 1, title: 'แตะ 3: ยืนยัน', text: 'จองเสร็จ จากเดิม 6 แตะกับพิมพ์เบอร์ เหลือ 3 แตะ' },
+  { v: 'cust', t: '.ticket', z: 1.3, title: 'ได้รหัสจองทันที', text: 'ยกเลิกหรือเลื่อนเองได้ก่อนนัด 2 ชม.' },
+  { v: 'cust', t: '[data-act="c-chat"]', z: 1.3, click: 1, title: 'กลับไปที่แชท', text: '' },
+  { v: 'cust', t: lastFlex, z: 1.35, title: 'ข้อความยืนยันเข้าแชทเดิม', text: 'ส่งแบบตอบกลับ จึงไม่กินโควตาข้อความฟรีของ LINE OA' },
+  { v: 'kiosk', t: () => myRow('[data-act="l-go"]')()?.closest('.q'), z: 1.25, title: 'คิวใหม่เด้งขึ้นที่ iPad หน้าร้าน', text: 'ไม่ต้องลงคิวใน Google Calendar เอง' },
+  { v: 'kiosk', t: () => document.querySelector(`[data-act="l-go"][data-id="${myId()}"][data-s="2"]`), z: 1.35, click: 1, title: 'ลูกค้ามาถึง ช่างแตะชื่อตัวเอง', text: 'แตะเดียว = รับงานและเริ่มทำ ไม่ต้องเปิดหน้าต่าง ไม่ต้องใส่ PIN ระบบบันทึกเวลาและชื่อช่างให้' },
+  { v: 'kiosk', t: () => document.querySelector(`[data-act="p-method"][data-m="transfer"][data-id="${myId()}"]`), z: 1.35, click: 1, title: 'ทำเสร็จ แตะ "โอน" บนแถวเดียวกัน', text: 'ถ้าจ่ายเงินสด แตะ "เงินสด" ปิดคิวทันที' },
+  { v: 'cust', t: myRow('[data-act="c-slip"]'), z: 1.35, click: 1, title: 'ลูกค้าส่งสลิปในแชท', text: 'ระบบตรวจสลิปกับธนาคารแล้วปิดคิวให้เอง' },
+  { v: 'cust', t: lastFlex, z: 1.35, title: 'ลูกค้าได้รับยืนยันการชำระเงิน', text: 'พนักงานไม่ต้องเปิดดูสลิป' },
+  { v: 'kiosk', t: '#walkBox', z: 1.35, title: 'Walk-in: แตะชื่อช่างที่ว่าง', text: 'ได้คิวและเริ่มทำในแตะเดียว ถ้าช่างไม่ว่างหรือคิวเต็ม ระบบไม่ให้แตะ กันรับลูกค้าเกินกำลัง' },
+  { v: 'owner', t: '.kpis', z: 1.1, title: 'เจ้าของร้านเห็นยอดทันที', text: 'แยกเงินสด/โอน แยกสาขา และแยกรายช่าง' },
+  { v: 'owner', t: () => [...document.querySelectorAll('#ownerApp > .card')].pop(), z: 1, title: 'ทุกการแตะถูกบันทึกไว้', text: 'แม้ไม่มี PIN ก็รู้ว่า iPad เครื่องไหน แตะชื่อช่างคนไหน เวลาไหน' },
+];
+let DEMO = DEMO_FULL; // picked when the demo starts
 const hold = ms => new Promise(r => setTimeout(r, ms)); // not skippable: "next" only shortens reading time
 const el$ = t => typeof t === 'function' ? t() : document.querySelector(t);
 function dSleep(ms) {
@@ -854,6 +962,7 @@ async function dRun() {
   document.body.insertAdjacentHTML('beforeend', '<div id="dBlock"></div><div id="dSpot"></div><div id="dRing"></div><div id="dTouch"></div><div id="dCap"></div><div id="dRotate"><span class="ic">📱↻</span><b>หมุนมือถือเป็นแนวตั้งเพื่อดูเดโม</b><span>เดโมจะเล่นต่อเองเมื่อหมุนแล้ว</span><button data-d="exit">หรือลองกดเองแนวนอน</button></div>');
   $('main').classList.add('demo');
   let shown = null; // which device is on screen
+  DEMO = S.lean ? DEMO_LEAN : DEMO_FULL;
   for (D.i = 0; D.i < DEMO.length && D.on; D.i++) {
     const st = DEMO[D.i];
     while (D.on && shortLand()) { await hold(300); shown = null; } // wait until the phone is upright, then re-show the whole device
@@ -895,10 +1004,10 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-d]'); if (!b) return;
   if (b.dataset.d === 'pause') { D.paused = !D.paused; b.textContent = D.paused ? '▶ เล่นต่อ' : '⏸ หยุดชั่วคราว'; }
   else if (b.dataset.d === 'next') D.skip = true;
-  else if (b.dataset.d === 'again') location.href = location.pathname;
-  else if (b.dataset.d === 'exit') { D.on = false; location.search = '?try'; }
+  else if (b.dataset.d === 'again') location.href = location.pathname + (modeQ() ? '?' + modeQ() : '');
+  else if (b.dataset.d === 'exit') { D.on = false; location.search = '?try' + (modeQ() ? '&' + modeQ() : ''); }
 });
-$('#demoBtn').addEventListener('click', () => { location.href = location.pathname; });
+$('#demoBtn').addEventListener('click', () => { location.href = location.pathname + (modeQ() ? '?' + modeQ() : ''); });
 if (!new URLSearchParams(location.search).has('try')) document.fonts.ready.then(() => setTimeout(dRun, 200));
 </script>
 </body>
