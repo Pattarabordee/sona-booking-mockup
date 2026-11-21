@@ -661,7 +661,8 @@ function renderOwner() {
     </div>
     <div class="card"><h3>บันทึกการทำงาน (Log) <span class="muted small">· ทุกการกระทำถูกบันทึกอัตโนมัติ แก้ไขหรือลบไม่ได้</span></h3>
       <div class="tbl"><table><tr><th>เวลา</th><th>สาขา</th><th>ผู้ทำ</th><th>รายการ</th><th>รายละเอียด</th></tr>
-      ${logs.map(l => `<tr class="${l.bad ? 'bad' : ''}"><td class="n">${l.at}</td><td class="small">${BR[l.br].name}</td><td class="small">${esc(l.who)}</td><td>${l.act}</td><td class="small">${esc(l.detail)}</td></tr>`).join('')}</table></div></div>`;
+      ${(S.logAll ? logs : logs.slice(0, 12)).map(l => `<tr class="${l.bad ? 'bad' : ''}"><td class="n">${l.at}</td><td class="small">${BR[l.br].name}</td><td class="small">${esc(l.who)}</td><td>${l.act}</td><td class="small">${esc(l.detail)}</td></tr>`).join('')}</table></div>
+      ${logs.length > 12 ? `<button class="linkbtn" data-act="o-logall">${S.logAll ? 'แสดงเฉพาะ 12 รายการล่าสุด' : `ดูทั้งหมด ${logs.length} รายการ`}</button>` : ''}</div>`;
 }
 
 /* ---------- wiring ---------- */
@@ -797,6 +798,7 @@ document.addEventListener('click', e => {
   }
   else if (a === 'm-close') { closeSheet(); return; }
   else if (a === 'o-br') S.oBr = el.dataset.k;
+  else if (a === 'o-logall') S.logAll = !S.logAll;
   renderAll();
 });
 function checkAssign() { const btn = document.querySelector('[data-act="m-assign"]'); if (btn) btn.disabled = !(pick && /^\d{4}$/.test($('#pin').value)); }
