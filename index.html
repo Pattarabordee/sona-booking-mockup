@@ -320,15 +320,32 @@ function mk(br, day, start, svc, addons, status, staff, name, src = 'line', pkg 
   return { id: 'SN-' + S.seq++, br, day, start, svc, addons, status, staff: staff || null, name, src, phone,
            dur: durOf(svc, addons), price: priceOf(svc, addons, pkg), pkg, pay: null };
 }
-function seedPay(b, method) {
+// seed log entries follow each booking's own times, the same steps the live flow logs
+function seedHistory(b, i, method) {
+  const ipad = 'iPad ' + BR[b.br].name, end = b.start + b.dur, svc = SV[b.svc].name + (b.addons.length ? ' + ' + b.addons.map(k => AD[k].name).join(', ') : '');
+  const st = (t, from, to) => logEv(fmt(t), b.br, 'ระบบ', 'เปลี่ยนสถานะ', `${b.id} ${b.name}: ${STATUS[from]} → ${STATUS[to]}`);
+  if (b.src === 'walk') logEv(fmt(b.start - 2), b.br, ipad, 'สร้างคิว Walk-in', `${b.id} ${fmt(b.start)} · ${svc} · ${baht(b.price)}`);
+  else {
+    const made = Math.max(450, Math.min(b.day * 1440 + b.start - 60, NOW - 8 - (i % 6) * 13)); // booked earlier today, before both its start and now
+    if (b.src === 'phone') logEv(fmt(made), b.br, ipad, 'เพิ่มคิวจากโทรศัพท์', `${b.id} ${b.name} ${b.phone} · ${dayLabel(b.day)} ${fmt(b.start)} · ${svc}`);
+    else logEv(fmt(made), b.br, b.name + ' (LINE)', 'จองคิว', `${b.id} ${dayLabel(b.day)} ${fmt(b.start)} · ${svc} · ${baht(b.price)}`);
+  }
+  if (!b.staff) return;
+  const who = S.staff.find(s => s.id === b.staff).name + ' (PIN)';
+  logEv(fmt(Math.min(b.start - (b.src === 'walk' ? 1 : 10), NOW - 3)), b.br, who, 'รับงาน', `${b.id} ${b.name} ${fmt(b.start)}`);
+  if (b.status === 'booked') return;
+  st(b.start, 'booked', 'inprog');
+  if (b.status === 'inprog') return;
+  if (method === 'transfer') { logEv(fmt(end), b.br, ipad, 'เลือกชำระแบบโอน', `${b.id} ${b.name} ${baht(b.price)}`); st(end, 'inprog', 'awaitpay'); }
+  if (b.status !== 'done') return;
   b.pay = { method, amount: b.price, ref: method === 'transfer' ? 'TRX' + (48210 + b.start) : '' };
-  const end = fmt(b.start + b.dur);
-  logEv(end, b.br, 'iPad ' + BR[b.br].name, method === 'cash' ? 'รับเงินสด' : 'ตรวจสลิปผ่าน', `${b.id} ${b.name} ${baht(b.price)}${b.pay.ref ? ' · ref ' + b.pay.ref : ''}`);
-  logEv(end, b.br, 'ระบบ', 'ปิดคิว', `${b.id} → เสร็จสิ้น`);
+  const paid = end + (method === 'transfer' ? 2 : 0);
+  logEv(fmt(paid), b.br, ipad, method === 'cash' ? 'รับเงินสด' : 'ตรวจสลิปผ่าน', `${b.id} ${b.name} ${baht(b.price)}${b.pay.ref ? ' · ref ' + b.pay.ref : ''}`);
+  st(paid, method === 'cash' ? 'inprog' : 'awaitpay', 'done');
 }
 (function seed() {
-  logEv('09:55', 's62', 'iPad สุขุมวิท 62/1', 'ลงชื่อเข้างาน', 'เมย์, ฝน');
-  logEv('08:52', 'fi', 'iPad แฟชั่นไอซ์แลนด์', 'ลงชื่อเข้างาน', 'บีม, ใหม่');
+  logEv('09:40', 's62', 'iPad สุขุมวิท 62/1', 'ลงชื่อเข้างาน', 'เมย์, ฝน');
+  logEv('08:40', 'fi', 'iPad แฟชั่นไอซ์แลนด์', 'ลงชื่อเข้างาน', 'บีม, ใหม่');
   const B = [
     mk('s62', 0, 600, 's1', ['treat'], 'done', 1, 'คุณนุ่น'),
     mk('s62', 0, 630, 's2', [], 'done', 2, 'คุณเบล'),
@@ -348,8 +365,9 @@ function seedPay(b, method) {
     mk('s62', 1, 660, 's1', ['straight'], 'unassigned', null, 'คุณข้าวหอม'),
   ];
   S.bookings = B;
-  [[0, 'cash'], [1, 'transfer'], [2, 'cash'], [10, 'transfer'], [11, 'cash']].forEach(([i, m]) => seedPay(B[i], m));
-  logEv('12:30', 'fi', 'iPad แฟชั่นไอซ์แลนด์', 'ตรวจสลิปไม่ผ่าน', `${B[12].id} คุณปิ่น: ยอดไม่ตรง (โอน 120 ฿ ต้องจ่าย 170 ฿)`, true);
+  const PAY = { 0: 'cash', 1: 'transfer', 2: 'cash', 10: 'transfer', 11: 'cash', 12: 'transfer' };
+  B.forEach((b, i) => seedHistory(b, i, PAY[i]));
+  logEv(fmt(B[12].start + B[12].dur + 2), 'fi', 'iPad แฟชั่นไอซ์แลนด์', 'ตรวจสลิปไม่ผ่าน', `${B[12].id} คุณปิ่น: ยอดไม่ตรง (โอน 120 ฿ ต้องจ่าย 170 ฿)`, true);
   S.log.sort((a, b) => a.at.localeCompare(b.at));
 })();
 

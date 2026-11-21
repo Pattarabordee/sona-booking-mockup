@@ -64,6 +64,27 @@ function kit(w) {
   return { w, E, q, click, type, change, book, assign, lastLog };
 }
 
+/* ---- log times ---- */
+test('เวลาใน log ตรงกับเวลาคิว: จอง ≤ เริ่ม, รับงานหลังลงชื่อเข้างาน, เริ่มทำ = เวลาคิว, จ่ายเงิน ≥ เวลาเสร็จ, ทุกรายการ ≤ ตอนนี้', ({ E }) => {
+  const bad = E(`(() => { const m = s => +s.slice(0, 2) * 60 + +s.slice(3), out = [];
+    const inAt = br => m(S.log.find(l => l.br === br && l.act === 'ลงชื่อเข้างาน').at);
+    for (const l of S.log) { const t = m(l.at); if (t > NOW) out.push('อนาคต ' + l.at + ' ' + l.detail);
+      const b = S.bookings.find(x => l.detail.startsWith(x.id + ' ')); if (!b) continue;
+      const start = b.day * 1440 + b.start, end = start + b.dur;
+      if (/จองคิว|เพิ่มคิว|สร้างคิว/.test(l.act) && t > start) out.push('จองหลังเริ่ม ' + l.at + ' ' + l.detail);
+      if (l.act === 'รับงาน' && (t > start || t < inAt(b.br))) out.push('รับงานผิดเวลา ' + l.at + ' ' + l.detail);
+      if (l.detail.endsWith('→ กำลังทำ') && t !== start) out.push('เริ่มทำไม่ตรงคิว ' + l.at + ' ' + l.detail);
+      if (/รับเงิน|สลิป|ชำระ/.test(l.act) && t < end) out.push('จ่ายก่อนเสร็จ ' + l.at + ' ' + l.detail); }
+    return out; })()`);
+  eq(bad.join(' | '), '', 'รายการที่เวลาไม่ตรง');
+});
+test('จองใหม่ → log บันทึกเวลาที่กดจอง (ตอนนี้) และระบุเวลาคิวในรายละเอียด', ({ E, book, lastLog }) => {
+  const id = book({ time: 1050 }).id;
+  const l = lastLog();
+  eq(l.at, E('fmt(NOW)'), 'เวลาที่กดจอง');
+  eq(l.detail.startsWith(id + ' ') && l.detail.includes('17:30'), true, 'รายละเอียดมีเวลาคิว 17:30');
+});
+
 /* ---- capacity ---- */
 test('คิวซ้อนกันได้ไม่เกินจำนวนช่างที่มาทำงาน (14:00 มี 2 คิว, ช่างมา 2 คน → เต็ม)', ({ E }) => {
   eq(E("cap('s62',0)"), 2, 'จำนวนช่างที่มาทำงาน');
